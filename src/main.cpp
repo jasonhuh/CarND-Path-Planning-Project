@@ -8,6 +8,9 @@
 #include "helpers.h"
 #include "json.hpp"
 #include "spline.h"
+#include "vehicle.h"
+#include "settings.h"
+
 
 // for convenience
 using nlohmann::json;
@@ -54,9 +57,11 @@ int main() {
   // global variables
   int lane = 1; // start in lane 1
   double ref_vel = 0.0; // mph
+  double SPEED_LIMIT = 49.5; // mph
+  //double  = 2.237; // one meter per sec ~ 2.237 miles per hour
 
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
-               &map_waypoints_dx,&map_waypoints_dy, &ref_vel, &lane]
+               &map_waypoints_dx,&map_waypoints_dy, &ref_vel, &lane, &SPEED_LIMIT]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -93,6 +98,8 @@ int main() {
           //   of the road.
           auto sensor_fusion = j[1]["sensor_fusion"];
 
+          Vehicle ego = Vehicle(lane, car_s, ref_vel, 0);
+
           int prev_size = previous_path_x.size();
 
           // Use sensor fusion
@@ -102,15 +109,28 @@ int main() {
 
           bool too_close = false;
 
+
+          map<int ,vector<Vehicle> > predictions;
           // Find ref_v to use
           for (int i = 0; i < sensor_fusion.size(); i++) {
             // car is in my lane
             float d = sensor_fusion[i][6];
+
+            double vx = sensor_fusion[i][3];
+            double vy = sensor_fusion[i][4];
+            double check_speed = sqrt(vx*vx+vy*vy); // magnitude of velocity
+            double check_car_s = sensor_fusion[i][5];
+
+            int car_lane = static_cast<int>(d / LANE_WIDTH);
+            // std::cout << "my lane: " << lane << ", other car:" << i << ":" << d << std::endl;
+            // Todo: calculate lane
+            Vehicle other_car = Vehicle(car_lane, check_car_s, check_speed, 0);
+            vector<Vehicle> preds = other_car.generate_predictions(NUM_LANES);
+            std::cout << preds.size() << std::endl;
+            predictions[i] = preds;
+
+
             if (d < (2+4*lane + 2) && d > (2+4*lane - 2)) { // is a car within my car's range?
-              double vx = sensor_fusion[i][3];
-              double vy = sensor_fusion[i][4];
-              double check_speed = sqrt(vx*vx+vy*vy); // magnitude of velocity
-              double check_car_s = sensor_fusion[i][5];
 
               // predicting where the car wil be in the future
               // if using previous points can project s value outward in time
@@ -125,16 +145,26 @@ int main() {
             }
           }
 
+          vector<Vehicle> trajectory = ego.choose_next_state(predictions);
+          ego.realize_next_state(trajectory);
+
           /* Path planner */
           /* Check vehicles around and determine the best path */
           /* We need a better Finite state machine and Cost function */
+
+          // Finate State Machines?
+          
           if (too_close) { // Too close. Slow down!
             ref_vel -= .224;
             if (lane > 0) {
               lane = 0;
             }
-          } else if (ref_vel < 49.5) { // Slowly accelrate.
+          } else if (ref_vel < SPEED_LIMIT) { // Slowly accelrate.
             ref_vel += .224;
+          }
+
+          for (int i = 0; i < sensor_fusion.size(); i++) {          
+
           }
 
           vector<double> ptsx;

@@ -772,6 +772,28 @@ lapacke_mangling.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/Eigen-3.3/Eigen/src/plugins/MatrixCwiseUnaryOps.h
 
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/cost.cpp
+cost.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/cost.h
+cmath
+-
+functional
+-
+iterator
+-
+map
+-
+string
+-
+vector
+-
+vehicle.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/cost.h
+vehicle.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/helpers.h
 math.h
 -
@@ -857,6 +879,12 @@ json.hpp
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/json.hpp
 spline.h
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/spline.h
+vehicle.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+settings.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
+
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/spline.h
 cstdio
@@ -866,6 +894,30 @@ cassert
 vector
 -
 algorithm
+-
+
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.cpp
+vehicle.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+algorithm
+-
+iterator
+-
+map
+-
+string
+-
+vector
+-
+cost.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/cost.h
+
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+map
+-
+string
+-
+vector
 -
 
 /usr/local/include/pthread-barrier.h
