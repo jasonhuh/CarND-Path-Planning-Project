@@ -789,10 +789,16 @@ vector
 -
 vehicle.h
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+settings.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/cost.h
 vehicle.h
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+cmath
+-
+settings.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/helpers.h
 math.h
@@ -883,8 +889,12 @@ vehicle.h
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
 settings.h
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
+util.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
+cmath
+-
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/spline.h
 cstdio
@@ -895,6 +905,16 @@ vector
 -
 algorithm
 -
+
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.cpp
+util.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.h
+settings.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
+math.h
+-
+
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.cpp
 vehicle.h
@@ -913,6 +933,12 @@ vector
 -
 cost.h
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/cost.h
+cmath
+-
+util.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.h
+settings.h
+/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
 
 /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
 map

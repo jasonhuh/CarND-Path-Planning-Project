@@ -11,6 +11,7 @@ set(sources
     src/main.cpp
     src/vehicle.cpp
     src/cost.cpp
+    src/util.cpp
     )
 
 

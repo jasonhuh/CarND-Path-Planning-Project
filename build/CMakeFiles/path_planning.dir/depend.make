@@ -3,6 +3,7 @@
 
 CMakeFiles/path_planning.dir/src/cost.cpp.o: ../src/cost.cpp
 CMakeFiles/path_planning.dir/src/cost.cpp.o: ../src/cost.h
+CMakeFiles/path_planning.dir/src/cost.cpp.o: ../src/settings.h
 CMakeFiles/path_planning.dir/src/cost.cpp.o: ../src/vehicle.h
 
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/Eigen-3.3/Eigen/Cholesky
@@ -168,6 +169,7 @@ CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/json.hpp
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/main.cpp
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/settings.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/spline.h
+CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/util.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/vehicle.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: /usr/local/include/pthread-barrier.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: /usr/local/include/uWS/Extensions.h
@@ -227,7 +229,13 @@ CMakeFiles/path_planning.dir/src/main.cpp.o: /usr/local/opt/openssl/include/open
 CMakeFiles/path_planning.dir/src/main.cpp.o: /usr/local/opt/openssl/include/openssl/x509.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: /usr/local/opt/openssl/include/openssl/x509_vfy.h
 
+CMakeFiles/path_planning.dir/src/util.cpp.o: ../src/settings.h
+CMakeFiles/path_planning.dir/src/util.cpp.o: ../src/util.cpp
+CMakeFiles/path_planning.dir/src/util.cpp.o: ../src/util.h
+
 CMakeFiles/path_planning.dir/src/vehicle.cpp.o: ../src/cost.h
+CMakeFiles/path_planning.dir/src/vehicle.cpp.o: ../src/settings.h
+CMakeFiles/path_planning.dir/src/vehicle.cpp.o: ../src/util.h
 CMakeFiles/path_planning.dir/src/vehicle.cpp.o: ../src/vehicle.cpp
 CMakeFiles/path_planning.dir/src/vehicle.cpp.o: ../src/vehicle.h
 

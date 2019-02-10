@@ -177,6 +177,33 @@ src/main.cpp.s:
 	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/util.o: src/util.cpp.o
+
+.PHONY : src/util.o
+
+# target to build an object file
+src/util.cpp.o:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/util.cpp.o
+.PHONY : src/util.cpp.o
+
+src/util.i: src/util.cpp.i
+
+.PHONY : src/util.i
+
+# target to preprocess a source file
+src/util.cpp.i:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/util.cpp.i
+.PHONY : src/util.cpp.i
+
+src/util.s: src/util.cpp.s
+
+.PHONY : src/util.s
+
+# target to generate assembly for a file
+src/util.cpp.s:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/util.cpp.s
+.PHONY : src/util.cpp.s
+
 src/vehicle.o: src/vehicle.cpp.o
 
 .PHONY : src/vehicle.o
@@ -219,6 +246,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/util.o"
+	@echo "... src/util.i"
+	@echo "... src/util.s"
 	@echo "... src/vehicle.o"
 	@echo "... src/vehicle.i"
 	@echo "... src/vehicle.s"

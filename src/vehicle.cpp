@@ -1,314 +1,506 @@
 #include "vehicle.h"
+#include <iostream>
 #include <algorithm>
 #include <iterator>
 #include <map>
 #include <string>
 #include <vector>
 #include "cost.h"
+#include <cmath>
+#include "util.h"
+#include "settings.h"
 
 using std::string;
 using std::vector;
 
-// Initializes Vehicle
-Vehicle::Vehicle(){}
+vector<vector<double>>  filter_predictions_by_s(
+                        vector<vector<double>> predictions,
+                        double s,
+                        double range,
+                        double t){
 
-Vehicle::Vehicle(int lane, double s, double v, double a, string state) {
-  this->lane = lane;
-  this->s = s;
-  this->v = v;
-  this->a = a;
-  this->state = state;
-  max_acceleration = -1;
+    vector<vector<double>> filtered;
+    for (int i = 0; i < predictions.size(); ++i) {
+        vector<double> ocar = predictions[i];
+        double other_s = ocar[1];
+        double other_v = ocar[3];
+        other_s += other_v * t;
+        if (fabs(ocar[1] - s) <= range) {
+            filtered.push_back(ocar);
+        }
+    }
+    return filtered;
+}
+
+vector<vector<double>>  filter_predictions_by_d_range(
+                        vector<vector<double>> predictions,
+                        double d1, double d2){
+    double d_small, d_big;
+    if (d1 < d2) {
+        d_small = d1;
+        d_big = d2;
+    }
+    else {
+        d_small = d2;
+        d_big = d1;
+    }
+    vector<vector<double>> filtered;
+    for (int i = 0; i < predictions.size(); ++i) {
+        vector<double> ocar = predictions[i];
+        double other_d = ocar[2];
+        if((other_d >= d_small - CAR_WIDTH) && (other_d <= d_big + CAR_WIDTH))
+        {
+            filtered.push_back(ocar);
+        }
+    }
+    return filtered;
+}
+
+vector<vector<double>>  filter_predictions_by_d(
+                        vector<vector<double>> predictions,
+                        double d){
+    return filter_predictions_by_d_range(predictions, d - CAR_WIDTH, d + CAR_WIDTH);
+}
+
+/**
+ * Initializes Vehicle
+ */
+Vehicle::Vehicle(int lane, double s, double v, double a, double target_speed) {
+
+    this->target_lane = lane;
+    this->current_lane = lane;
+    this->prep_lane = lane;
+    this->target_d = get_d(lane);
+    this->s = s;
+    this->v = v;
+    this->a = a;
+    this->state = "CS";
+    this->step = 0;
+    this->target_speed = target_speed;
+    this->time = 0.0;
+    this->lane_changing = false;
+    this->lane_change_finish = false;
+    this->plcr_lcr = false;
+    this->plcl_lcl = false;
 }
 
 Vehicle::~Vehicle() {}
 
-vector<Vehicle> Vehicle::choose_next_state(map<int, vector<Vehicle>> &predictions) {
-  /**
-   * Here you can implement the transition_function code from the Behavior 
-   *   Planning Pseudocode classroom concept.
-   *
-   * @param A predictions map. This is a map of vehicle id keys with predicted
-   *   vehicle trajectories as values. Trajectories are a vector of Vehicle 
-   *   objects representing the vehicle at the current timestep and one timestep
-   *   in the future.
-   * @output The best (lowest cost) trajectory corresponding to the next ego 
-   *   vehicle state.
-   *
-   * Functions that will be useful:
-   * 1. successor_states - Uses the current state to return a vector of possible
-   *    successor states for the finite state machine.
-   * 2. generate_trajectory - Returns a vector of Vehicle objects representing 
-   *    a vehicle trajectory, given a state and predictions. Note that 
-   *    trajectory vectors might have size 0 if no possible trajectory exists 
-   *    for the state. 
-   * 3. calculate_cost - Included from cost.cpp, computes the cost for a trajectory.
-   *
-   * TODO: Your solution here.
-   */
-  vector<string> states = successor_states();
-  double cost;
-  vector<double> costs;
-  vector<vector<Vehicle>> final_trajectories;
-
-  for (vector<string>::iterator it = states.begin(); it != states.end(); ++it) {
-    vector<Vehicle> trajectory = generate_trajectory(*it, predictions);
-    if (trajectory.size() != 0) {
-      cost = calculate_cost(*this, predictions, trajectory);
-      costs.push_back(cost);
-      final_trajectories.push_back(trajectory);
+// Initializes Vehicle
+vector<string> Vehicle::get_available_states(){
+    vector<string> available_states;
+    // 3.1. previous lane change still continues
+    if (this->lane_changing) {
+        // 3.1.1. accept new state (lane)
+        available_states.push_back("KL");
+        // 3.1.2. turn back to previous state (lane) if not already passed to the target_lane
+        if (fabs(this->d - this->target_d) > 2.5) {
+            available_states.push_back("CC");
+        }
     }
-  }
+    // 3.2. no lane change is taking place now
+    else {
+        // prevent lane change from 2 (current_lane) to 0 (target_lane)
+        bool not_in_leftmost = this->target_lane > 0;
+        bool not_in_rightmost = this->target_lane < NUM_LANES - 1;
+        bool left_available = (!(this->target_lane < this->current_lane));
+        bool right_available = (!(this->target_lane > this->current_lane));
+        available_states.push_back("KL");
+        if (this->state.compare("KL") == 0 || this->state.compare("LCL") == 0 || this->state.compare("LCR") == 0) {
+            if ((not_in_leftmost) &&
+                left_available) {
+                available_states.push_back("PLCL");
+                available_states.push_back("LCL");
+            }
+            if ((not_in_rightmost) &&
+                right_available) {
+                available_states.push_back("PLCR");
+                available_states.push_back("LCR");
+            }
+        }
+        else if(this->state.compare("PLCL") == 0 && not_in_leftmost){
+            if (left_available) {
+                available_states.push_back("LCL");
+            }
+            available_states.push_back("PLCL");
+        }
+        else if(this->state.compare("PLCR") == 0 && not_in_rightmost){
+            if (right_available) {
+                available_states.push_back("LCR");
+            }
+            available_states.push_back("PLCR");
+        }
 
-  vector<double>::iterator best_cost = min_element(begin(costs), end(costs));
-  int best_idx = distance(begin(costs), best_cost);
-
-  /**
-   * TODO: Change return value here:
-   */
-  return final_trajectories[best_idx];
-}
-
-vector<string> Vehicle::successor_states() {
-  // Provides the possible next states given the current state for the FSM 
-  //   discussed in the course, with the exception that lane changes happen 
-  //   instantaneously, so LCL and LCR can only transition back to KL.
-  vector<string> states;
-  states.push_back("KL");
-  string state = this->state;
-  if(state.compare("KL") == 0) {
-    states.push_back("PLCL");
-    states.push_back("PLCR");
-  } else if (state.compare("PLCL") == 0) {
-    if (lane != lanes_available - 1) {
-      states.push_back("PLCL");
-      states.push_back("LCL");
     }
-  } else if (state.compare("PLCR") == 0) {
-    if (lane != 0) {
-      states.push_back("PLCR");
-      states.push_back("LCR");
+    return available_states;
+}
+
+void Vehicle::update_state(vector<vector<double>> predictions) {
+    this->plcl_lcl = false;
+    this->plcr_lcr = false;
+    Vehicle::TrajectoryObject to;
+
+    to = this->get_next_state_recursive(predictions, to, PLANNING_HORIZON);
+
+    std::cout<<this->step<<" states:";
+    for(int i = 0; i < to.state_list.size(); ++i) {
+        std::cout<<" "<<to.state_list[i] << " ";
     }
-  }
-    
-  // If state is "LCL" or "LCR", then just return "KL"
-  return states;
+    std::cout<<"| cost: " << to.cost << "" << std::endl;
+
+    this->state = to.state;
+    this->a_list = to.a_list;
+    this->a = this->a_list[0];
 }
 
-vector<Vehicle> Vehicle::generate_trajectory(string state, 
-                                             map<int, vector<Vehicle>> &predictions) {
-  // Given a possible next state, generate the appropriate trajectory to realize
-  //   the next state.
-  vector<Vehicle> trajectory;
-  if (state.compare("CS") == 0) {
-    trajectory = constant_speed_trajectory();
-  } else if (state.compare("KL") == 0) {
-    trajectory = keep_lane_trajectory(predictions);
-  } else if (state.compare("LCL") == 0 || state.compare("LCR") == 0) {
-    trajectory = lane_change_trajectory(state, predictions);
-  } else if (state.compare("PLCL") == 0 || state.compare("PLCR") == 0) {
-    trajectory = prep_lane_change_trajectory(state, predictions);
-  }
+// collect TrajectoryData for inner steps (horizon = 1) and outer steps (horizon = 5)
+Vehicle::TrajectoryObject Vehicle::get_next_state_recursive(vector<vector<double>> predictions, Vehicle::TrajectoryObject trajectory_object, int horizon) {
+    TrajectoryObject to;
+    double d_const = 0.1;
 
-  return trajectory;
-}
+    double vi = this->v;
+    double si = this->s;
+    double di = this->d;
+    double df = this->target_d;
 
-vector<double> Vehicle::get_kinematics(map<int, vector<Vehicle>> &predictions, 
-                                      int lane) {
-  // Gets next timestep kinematics (position, velocity, acceleration) 
-  //   for a given lane. Tries to choose the maximum velocity and acceleration, 
-  //   given other vehicle positions and accel/velocity constraints.
-  double max_velocity_accel_limit = this->max_acceleration + this->v;
-  double new_position;
-  double new_velocity;
-  double new_accel;
-  Vehicle vehicle_ahead;
-  Vehicle vehicle_behind;
+    // 0. find d and target_d d_dif
+    double dd = df - di;
+    double dd_abs = fabs(dd);
 
-  if (get_vehicle_ahead(predictions, lane, vehicle_ahead)) {
-    if (get_vehicle_behind(predictions, lane, vehicle_behind)) {
-      // must travel at the speed of traffic, regardless of preferred buffer
-      new_velocity = vehicle_ahead.v;
-    } else {
-      double max_velocity_in_front = (vehicle_ahead.s - this->s 
-                                  - this->preferred_buffer) + vehicle_ahead.v 
-                                  - 0.5 * (this->a);
-      new_velocity = std::min(std::min(max_velocity_in_front, 
-                                       max_velocity_accel_limit), 
-                                       this->target_speed);
+
+    // End of lane changeing
+    if (this->lane_changing) {
+        if (this->lane_change_finish) {
+            this->lane_changing = false;
+            this->lane_change_finish = false;
+        }
+        else if (dd_abs < d_const) {
+            this->lane_change_finish = true;
+        }
     }
-  } else {
-    new_velocity = std::min(max_velocity_accel_limit, this->target_speed);
-  }
-    
-  new_accel = new_velocity - this->v; // Equation: (v_1 - v_0)/t = acceleration
-  new_position = this->s + new_velocity + new_accel / 2.0;
-    
-  return{new_position, new_velocity, new_accel};
-}
+    // 2. Filter near vehicles s0 +- PLANNING_DISTANCE
+    vector<vector<double>> filtered_s = filter_predictions_by_s(predictions, si, (double)PLANNING_DISTANCE, this->time);
 
-vector<Vehicle> Vehicle::constant_speed_trajectory() {
-  // Generate a constant speed trajectory.
-  double next_pos = position_at(1);
-  vector<Vehicle> trajectory = {Vehicle(this->lane,this->s,this->v,this->a,this->state), 
-                                Vehicle(this->lane,next_pos,this->v,0,this->state)};
-  return trajectory;
-}
+    // 3. get available states.
+    Vehicle snapshot = this->copy_vehicle();
+    vector<string> available_states = this->get_available_states();
+    vector<Vehicle::TrajectoryObject> to_list;
 
-vector<Vehicle> Vehicle::keep_lane_trajectory(map<int, vector<Vehicle>> &predictions) {
-  // Generate a keep lane trajectory.
-  vector<Vehicle> trajectory = {Vehicle(lane, this->s, this->v, this->a, state)};
-  vector<double> kinematics = get_kinematics(predictions, this->lane);
-  double new_s = kinematics[0];
-  double new_v = kinematics[1];
-  double new_a = kinematics[2];
-  trajectory.push_back(Vehicle(this->lane, new_s, new_v, new_a, "KL"));
-  
-  return trajectory;
-}
+    vector<double> costs;
+    for (auto st: available_states) {
+        to = trajectory_object;
+        this->state = st;
+        to.state = st;
+        to.trajectory.push_back(*this);
+        to.state_list.push_back(st);
 
-vector<Vehicle> Vehicle::prep_lane_change_trajectory(string state, 
-                                                     map<int, vector<Vehicle>> &predictions) {
-  // Generate a trajectory preparing for a lane change.
-  double new_s;
-  double new_v;
-  double new_a;
-  Vehicle vehicle_behind;
-  int new_lane = this->lane + lane_direction[state];
-  vector<Vehicle> trajectory = {Vehicle(this->lane, this->s, this->v, this->a, 
-                                        this->state)};
-  vector<double> curr_lane_new_kinematics = get_kinematics(predictions, this->lane);
+        this->realize_state(predictions);
+        if(state.compare("CC") == 0) {
+            to.cancel_count++;
+        }
+        if (this->target_lane != this->current_lane) {
+            to.total_lane_changes++;
+        }
 
-  if (get_vehicle_behind(predictions, this->lane, vehicle_behind)) {
-    // Keep speed of current lane so as not to collide with car behind.
-    new_s = curr_lane_new_kinematics[0];
-    new_v = curr_lane_new_kinematics[1];
-    new_a = curr_lane_new_kinematics[2];    
-  } else {
-    vector<double> best_kinematics;
-    vector<double> next_lane_new_kinematics = get_kinematics(predictions, new_lane);
-    // Choose kinematics with lowest velocity.
-    if (next_lane_new_kinematics[1] < curr_lane_new_kinematics[1]) {
-      best_kinematics = next_lane_new_kinematics;
-    } else {
-      best_kinematics = curr_lane_new_kinematics;
+        vector<vector<double>> filtered_s_d_range = filter_predictions_by_d_range(filtered_s, this->d, this->target_d);
+
+        double d_int = 0.0;
+        double ds = (double)PLANNING_DISTANCE;
+
+        df = this->target_d;
+        dd = df - di;
+        // change d if target_d not reached
+        d_int = dd / (double)PLANNING_DISTANCE;
+
+        double sf = si + ds;
+        double lowest_time = DESIRED_BUFFER;
+        double closest_approach = CAR_LENGTH;
+        while (this->s < sf ) {
+            // during iteration, construct the helper_data, calculated nearest, lowest_time, and lowest_time_front and others
+            // filters should be used, not all others should be considered, filter by s, filter by ...., filter by d,
+            // it is assumed that others wont change d!!! this assumption may be used. with notification.
+            StepObject so = this->acc_for_d(filtered_s_d_range);
+            this->a = so.a;
+            if (so.lowest_time < lowest_time) {
+                lowest_time = so.lowest_time;
+            }
+            if (so.closest_approach < closest_approach) {
+                closest_approach = so.closest_approach;
+            }
+            this->time += tpint;
+            this->s += tpint * this->v;
+            if (d_int != 0.0) {
+                double d_step = tpint * this->v * d_int;
+
+                if (fabs(this->d - df) <= fabs(d_step)) {
+                    this->d = df;
+                }
+                else {
+                    this->d += d_step;
+                }
+            }
+            this->current_lane = get_lane(this->d);
+            to.v_sum += this->v;
+            to.step_count++;
+            to.t_sum += tpint;
+            to.a_list.push_back(this->a);
+            this->v += tpint * this->a;
+        }
+        to.closest_approach_list.push_back(closest_approach);
+        to.lowest_time_list.push_back(lowest_time);
+        // occupied, lowest_time_front
+        to.lowest_time_front_list.push_back(get_lowest_time_front(predictions));
+
+        double cost = MAX_COST;
+        if (closest_approach < (CAR_LENGTH / 2.0)) {
+          to.trajectory.push_back(this->copy_vehicle());
+
+          to.cost = MAX_COST;
+          to_list.push_back(to);
+        }
+        else if (horizon > 1) {
+            Vehicle::TrajectoryObject child_to = this->get_next_state_recursive(predictions, to, horizon - 1);
+            cost = child_to.cost;
+            to_list.push_back(child_to);
+        }
+        else {
+            to.trajectory.push_back(this->copy_vehicle());
+            cost = calculate_cost(*this, to);
+            to.cost = cost;
+            to_list.push_back(to);
+        }
+        costs.push_back(cost);
+        this->restore_vehicle(snapshot);
+        if (cost < 5.0) {
+            break;
+        }
     }
-    new_s = best_kinematics[0];
-    new_v = best_kinematics[1];
-    new_a = best_kinematics[2];
-  }
-
-  trajectory.push_back(Vehicle(this->lane, new_s, new_v, new_a, state));
-  
-  return trajectory;
-}
-
-vector<Vehicle> Vehicle::lane_change_trajectory(string state, 
-                                                map<int, vector<Vehicle>> &predictions) {
-  // Generate a lane change trajectory.
-  int new_lane = this->lane + lane_direction[state];
-  vector<Vehicle> trajectory;
-  Vehicle next_lane_vehicle;
-  // Check if a lane change is possible (check if another vehicle occupies 
-  //   that spot).
-  for (map<int, vector<Vehicle>>::iterator it = predictions.begin(); 
-       it != predictions.end(); ++it) {
-    next_lane_vehicle = it->second[0];
-    if (next_lane_vehicle.s == this->s && next_lane_vehicle.lane == new_lane) {
-      // If lane change is not possible, return empty trajectory.
-      return trajectory;
+    double min_cost = MAX_COST;
+    for (int i = 0; i < costs.size(); ++i) {
+        if (costs[i] < min_cost){
+            min_cost = costs[i];
+            to = to_list[i];
+            to.state = available_states[i];
+        }
     }
-  }
-  trajectory.push_back(Vehicle(this->lane, this->s, this->v, this->a, 
-                               this->state));
-  vector<double> kinematics = get_kinematics(predictions, new_lane);
-  trajectory.push_back(Vehicle(new_lane, kinematics[0], kinematics[1], 
-                               kinematics[2], state));
-  return trajectory;
+    return to;
 }
 
-void Vehicle::increment(int dt = 1) {
-  this->s = position_at(dt);
+void Vehicle::restore_vehicle(Vehicle snapshot){
+    this->target_lane = snapshot.target_lane;
+    this->s = snapshot.s;
+    this->v = snapshot.v;
+    this->a = snapshot.a;
+    this->state = snapshot.state;
+    this->target_speed = snapshot.target_speed;
+    this->d = snapshot.d;
+    this->target_d = snapshot.target_d;
+    this->current_lane = snapshot.current_lane;
+    this->prep_lane = snapshot.prep_lane;
+    this->time = snapshot.time;
+    this->lane_changing = snapshot.lane_changing;
+    this->lane_change_finish = snapshot.lane_change_finish;
+    this->plcl_lcl = snapshot.plcl_lcl;
+    this->plcr_lcr = snapshot.plcr_lcr;
 }
 
-double Vehicle::position_at(int t) {
-  return this->s + this->v*t + this->a*t*t/2.0;
+Vehicle Vehicle::copy_vehicle(){
+    Vehicle snapshot = Vehicle(this->target_lane,this->s,this->v,this->a,this->target_speed);
+    snapshot.d = this->d;
+    snapshot.target_d = this->target_d;
+    snapshot.state = this->state;
+    snapshot.current_lane = this->current_lane;
+    snapshot.prep_lane = this->prep_lane;
+    snapshot.time = this->time;
+    snapshot.lane_changing = this->lane_changing;
+    snapshot.lane_change_finish = this->lane_change_finish;
+    snapshot.plcl_lcl = this->plcl_lcl;
+    snapshot.plcr_lcr = this->plcr_lcr;
+    return snapshot;
 }
 
-bool Vehicle::get_vehicle_behind(map<int, vector<Vehicle>> &predictions, 
-                                 int lane, Vehicle &rVehicle) {
-  // Returns a true if a vehicle is found behind the current vehicle, false 
-  //   otherwise. The passed reference rVehicle is updated if a vehicle is found.
-  int max_s = -1;
-  bool found_vehicle = false;
-  Vehicle temp_vehicle;
-  for (map<int, vector<Vehicle>>::iterator it = predictions.begin(); 
-       it != predictions.end(); ++it) {
-    temp_vehicle = it->second[0];
-    if (temp_vehicle.lane == this->lane && temp_vehicle.s < this->s 
-        && temp_vehicle.s > max_s) {
-      max_s = temp_vehicle.s;
-      rVehicle = temp_vehicle;
-      found_vehicle = true;
+void Vehicle::realize_state(vector<vector<double>> predictions) {
+
+    /*
+    Given a state, realize it by adjusting acceleration and lane.
+    Note - lane changes happen instantaneously.
+    */
+    string state = this->state;
+    if(state.compare("CC") == 0)
+    {
+        if (this->target_d < this->d)
+        {
+            realize_lane_change("R");
+        }
+        else if (this->target_d > this->d)
+        {
+            realize_lane_change("L");
+        }
     }
-  }
-  
-  return found_vehicle;
-}
-
-bool Vehicle::get_vehicle_ahead(map<int, vector<Vehicle>> &predictions, 
-                                int lane, Vehicle &rVehicle) {
-  // Returns a true if a vehicle is found ahead of the current vehicle, false 
-  //   otherwise. The passed reference rVehicle is updated if a vehicle is found.
-  int min_s = this->goal_s;
-  bool found_vehicle = false;
-  Vehicle temp_vehicle;
-  for (map<int, vector<Vehicle>>::iterator it = predictions.begin(); 
-       it != predictions.end(); ++it) {
-    temp_vehicle = it->second[0];
-    if (temp_vehicle.lane == this->lane && temp_vehicle.s > this->s 
-        && temp_vehicle.s < min_s) {
-      min_s = temp_vehicle.s;
-      rVehicle = temp_vehicle;
-      found_vehicle = true;
+    else if(state.compare("LCL") == 0)
+    {
+        this->plcl_lcl = false;
+        realize_lane_change("L");
     }
-  }
-  
-  return found_vehicle;
-}
-
-vector<Vehicle> Vehicle::generate_predictions(int horizon) {
-  // Generates predictions for non-ego vehicles to be used in trajectory 
-  //   generation for the ego vehicle.
-  vector<Vehicle> predictions;
-  for(int i = 0; i < horizon; ++i) {
-    double next_s = position_at(i);
-    double next_v = 0;
-    if (i < horizon-1) {
-      next_v = position_at(i+1) - s;
+    else if(state.compare("LCR") == 0)
+    {
+        this->plcr_lcr = false;
+        realize_lane_change("R");
     }
-    predictions.push_back(Vehicle(this->lane, next_s, next_v, 0));
-  }
-  
-  return predictions;
+    else if(state.compare("PLCL") == 0)
+    {
+        this->plcl_lcl = true;
+        realize_prep_lane_change("L");
+    }
+    else if(state.compare("PLCR") == 0)
+    {
+        this->plcr_lcr = true;
+        realize_prep_lane_change("R");
+    }
 }
 
-void Vehicle::realize_next_state(vector<Vehicle> &trajectory) {
-  // Sets state and kinematics for ego vehicle using the last state of the trajectory.
-  Vehicle next_state = trajectory[1];
-  this->state = next_state.state;
-  this->lane = next_state.lane;
-  this->s = next_state.s;
-  this->v = next_state.v;
-  this->a = next_state.a;
+// combined to return acc, buffer_cost (lowest,time), near_cost (closest_approach)
+StepObject Vehicle::acc_for_d(vector<vector<double>> predictions) {
+    StepObject so;
+    double delta_v_til_target = this->target_speed - this->v;
+    double max_acc = fmin(MAX_A, delta_v_til_target);
+
+    double car_s = this->s;
+    double car_d = this->d;
+    double car_td = get_d(this->prep_lane);
+    double car_v = this->v;
+    double t_step = this->time;
+
+    double min_s = 0.0;
+    double min_s_dif = 100.0;
+    double min_v = 0.0;
+    int min_id = -1;
+
+    double lowest_time = DESIRED_BUFFER;
+    double closest_approach = CAR_LENGTH;
+
+    // Filter by s and d-range
+    double d_small, d_big;
+    if (car_d < car_td) {
+        d_small = car_d - CAR_WIDTH;
+        d_big = car_td + CAR_WIDTH;
+    }
+    else {
+        d_small = car_td - CAR_WIDTH;
+        d_big = car_d + CAR_WIDTH;
+    }
+    for (int i = 0; i < predictions.size(); ++i) {
+        vector<double> other = predictions[i];
+        double other_s = other[1];
+        double other_d = other[2];
+        double other_v = other[3];
+        other_s += other_v * t_step;
+        if((other_d >= d_small) && (other_d <= d_big))
+        {
+            double s_dif = other_s - car_s;
+            if (s_dif >= 0.0 && s_dif < min_s_dif) {
+                min_s_dif = s_dif;
+                min_s = other_s;
+                min_v = other_v;
+                min_id = (int)other[0];
+            }
+            if (fabs(other_d - car_d) <= CAR_WIDTH) {
+                double dist_abs = fabs(other_s - car_s);
+                double time_to = DESIRED_BUFFER;
+                if (dist_abs <= CAR_LENGTH) {
+                    time_to = 0.0;
+                }
+                else if (other_s > car_s) {
+                    time_to = time_to_collision(other_s, car_s + CAR_LENGTH, other_v, car_v);
+                }
+                else {
+                    time_to = time_to_collision(other_s + CAR_LENGTH, car_s, other_v, car_v);
+                }
+
+                // buffer lowest_time
+                if (time_to >= 0.0) {
+                    if (time_to < lowest_time){
+                        lowest_time = time_to;
+                    }
+                }
+
+                //near closest_approach
+                if (dist_abs < closest_approach) {
+                    closest_approach = dist_abs;
+                }
+            }
+        }
+    }
+
+    // If there is a leading vehicle
+    if (min_s_dif < 100.0) {
+      double next_pos = min_s + (min_v * tpint);
+      double my_next = car_s + (car_v * tpint);
+      double separation_next = next_pos - my_next;
+      double available_room = separation_next - this->preferred_buffer;
+      max_acc = fmin(max_acc, available_room);
+      max_acc = fmax(max_acc, - MAX_A);
+    }
+
+    so.a = max_acc;
+    so.lowest_time = lowest_time;
+    so.closest_approach = closest_approach;
+
+    this->a = max_acc;
+
+    return so;
 }
 
-void Vehicle::configure(vector<int> &road_data) {
-  // Called by simulator before simulation begins. Sets various parameters which
-  //   will impact the ego vehicle.
-  target_speed = road_data[0];
-  lanes_available = road_data[1];
-  goal_s = road_data[2];
-  goal_lane = road_data[3];
-  max_acceleration = road_data[4];
+
+double Vehicle::get_lowest_time_front(vector<vector<double>> predictions) {
+    double lowest_time_front = TIME_DISTANCE;
+
+    double ego_s = this->s;
+    double ego_d = this->d;
+    double ego_td = this->target_d;
+    double ego_v = this->v;
+    double t_step = this->time;
+
+    for (int i = 0; i < predictions.size(); ++i) {
+        vector<double> other = predictions[i];
+        double other_s = other[1];
+        double other_d = other[2];
+        double other_v = other[3];
+        double time_to = TIME_DISTANCE;
+        other_s += other_v * t_step;
+        if(fabs(other_d - ego_td) <= CAR_WIDTH && other_s >= ego_s)
+        {
+            time_to = time_to_collision(other_s, ego_s, other_v, MAX_V);
+
+            if (time_to > 0.0 && time_to < lowest_time_front) {
+                lowest_time_front = time_to;
+            }
+        }
+    }
+    return lowest_time_front;
+}
+
+void Vehicle::update_current_a(double time) {
+    double t_step = (int)(ceil(time / tpint));
+    this->a = this->a_list[t_step];
+}
+
+void Vehicle::realize_lane_change(string dir) {
+    int delta = -1;
+    if (dir.compare("R") == 0) {
+        delta = 1;
+    }
+    this->target_lane = this->target_lane + delta;
+    this->prep_lane = this->target_lane;
+    this->target_d = get_d(this->target_lane);
+    this->lane_changing = true;
+}
+
+void Vehicle::realize_prep_lane_change(string dir) {
+    int delta = -1;
+    if (dir.compare("R") == 0)
+    {
+        delta = 1;
+    }
+    this->prep_lane = this->target_lane + delta;
 }

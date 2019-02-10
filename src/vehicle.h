@@ -9,69 +9,103 @@ using std::map;
 using std::string;
 using std::vector;
 
+
+struct StepObject{
+    double a;
+    double lowest_time;
+    double closest_approach;
+};
+
+
 class Vehicle {
- public:
-  // Constructors
-  Vehicle();
-  Vehicle(int lane, double s, double v, double a, string state="CS");
+public:
+    struct TrajectoryObject{
+        vector<Vehicle> trajectory;
+        vector<double> a_list;
+        double v_sum = 0;
+        double t_sum = 0;
+        int step_count = 0;
+        int cancel_count = 0;
+        vector<double> closest_approach_list;
+        vector<double> lowest_time_list;
+        vector<double> lowest_time_front_list;
+        int total_lane_changes = 0;
 
-  // Destructor
-  virtual ~Vehicle();
+        string state;
+        vector<string> state_list;
+        double cost;
+    };
 
-  // Vehicle functions
-  vector<Vehicle> choose_next_state(map<int, vector<Vehicle>> &predictions);
 
-  vector<string> successor_states();
+  double preferred_buffer = 13.0; // impacts "keep lane" behavior.
 
-  vector<Vehicle> generate_trajectory(string state, 
-                                      map<int, vector<Vehicle>> &predictions);
+  int prep_lane;
 
-  vector<double> get_kinematics(map<int, vector<Vehicle>> &predictions, int lane);
+  int target_lane;
 
-  vector<Vehicle> constant_speed_trajectory();
+  int current_lane;
 
-  vector<Vehicle> keep_lane_trajectory(map<int, vector<Vehicle>> &predictions);
+  double s;
 
-  vector<Vehicle> lane_change_trajectory(string state, 
-                                         map<int, vector<Vehicle>> &predictions);
+  double d;
 
-  vector<Vehicle> prep_lane_change_trajectory(string state, 
-                                              map<int, vector<Vehicle>> &predictions);
+  double target_d;
 
-  void increment(int dt);
+  double time;
 
-  double position_at(int t);
+  double v;
 
-  bool get_vehicle_behind(map<int, vector<Vehicle>> &predictions, int lane, 
-                          Vehicle &rVehicle);
+  double a;
 
-  bool get_vehicle_ahead(map<int, vector<Vehicle>> &predictions, int lane, 
-                         Vehicle &rVehicle);
+  vector<double> a_list;
 
-  vector<Vehicle> generate_predictions(int horizon=2);
-
-  void realize_next_state(vector<Vehicle> &trajectory);
-
-  void configure(vector<int> &road_data);
-
-  // public Vehicle variables
-  struct collider{
-    bool collision; // is there a collision?
-    int  time; // time collision happens
-  };
-
-  map<string, int> lane_direction = {{"PLCL", 1}, {"LCL", 1}, 
-                                     {"LCR", -1}, {"PLCR", -1}};
-
-  int L = 1;
-
-  int preferred_buffer = 6; // impacts "keep lane" behavior.
-
-  int lane, s, goal_lane, goal_s, lanes_available;
-
-  double v, target_speed, a, max_acceleration;
+  double target_speed;
 
   string state;
+
+  bool lane_changing;
+  bool lane_change_finish;
+
+  bool plcl_lcl;
+  bool plcr_lcr;
+
+  int step;
+
+
+  /**
+  * Constructor
+  */
+  Vehicle(int lane, double s, double v, double a, double target_speed);
+
+
+  /**
+  * Destructor
+  */
+  virtual ~Vehicle();
+
+  Vehicle copy_vehicle();
+
+  void restore_vehicle(Vehicle snapshot);
+
+  vector<string> get_available_states();
+
+  void update_state(vector<vector<double>> sensor_fusion);
+
+  TrajectoryObject get_next_state_recursive(vector<vector<double>> predictions, TrajectoryObject to, int horizon = 5);
+
+  void configure(vector<int> road_data);
+
+  void realize_state(vector<vector<double>> predictions);
+
+  void realize_lane_change(string direction);
+
+  void realize_prep_lane_change(string direction);
+
+  StepObject acc_for_d(vector<vector<double>> predictions);
+
+  double get_lowest_time_front(vector<vector<double>> predictions);
+
+  void update_current_a(double time);
 };
 
 #endif  // VEHICLE_H

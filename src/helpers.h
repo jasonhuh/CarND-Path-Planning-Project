@@ -154,4 +154,8 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s,
   return {x,y};
 }
 
+double miles_per_hour_to_meters_per_second(double mph) {
+  return mph * 44704;
+}
+
 #endif  // HELPERS_H
