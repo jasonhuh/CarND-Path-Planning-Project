@@ -74,7 +74,7 @@ Vehicle::Vehicle(int lane, double s, double v, double a, double target_speed) {
     this->s = s;
     this->v = v;
     this->a = a;
-    this->state = "CS";
+    this->state = Initial;
     this->step = 0;
     this->target_speed = target_speed;
     this->time = 0.0;
@@ -87,15 +87,15 @@ Vehicle::Vehicle(int lane, double s, double v, double a, double target_speed) {
 Vehicle::~Vehicle() {}
 
 // Initializes Vehicle
-vector<string> Vehicle::get_available_states(){
-    vector<string> available_states;
+vector<VehicleState> Vehicle::get_available_states(){
+    vector<VehicleState> available_states;
     // 3.1. previous lane change still continues
     if (this->lane_changing) {
         // 3.1.1. accept new state (lane)
-        available_states.push_back("KL");
+        available_states.push_back(KeepLane);
         // 3.1.2. turn back to previous state (lane) if not already passed to the target_lane
         if (fabs(this->d - this->target_d) > 2.5) {
-            available_states.push_back("CC");
+            available_states.push_back(CancelCount);
         }
     }
     // 3.2. no lane change is taking place now
@@ -105,34 +105,59 @@ vector<string> Vehicle::get_available_states(){
         bool not_in_rightmost = this->target_lane < NUM_LANES - 1;
         bool left_available = (!(this->target_lane < this->current_lane));
         bool right_available = (!(this->target_lane > this->current_lane));
-        available_states.push_back("KL");
-        if (this->state.compare("KL") == 0 || this->state.compare("LCL") == 0 || this->state.compare("LCR") == 0) {
+        available_states.push_back(KeepLane);
+        if (this->state == KeepLane || this->state == LaneChangeLeft || this->state == LaneChangeRight) {
             if ((not_in_leftmost) &&
                 left_available) {
-                available_states.push_back("PLCL");
-                available_states.push_back("LCL");
+                available_states.push_back(PrepareLaneChangeLeft);
+                available_states.push_back(LaneChangeLeft);
             }
             if ((not_in_rightmost) &&
                 right_available) {
-                available_states.push_back("PLCR");
-                available_states.push_back("LCR");
+                available_states.push_back(PrepareLaneChangeRight);
+                available_states.push_back(LaneChangeRight);
             }
         }
-        else if(this->state.compare("PLCL") == 0 && not_in_leftmost){
+        else if(this->state == PrepareLaneChangeLeft && not_in_leftmost){
             if (left_available) {
-                available_states.push_back("LCL");
+                available_states.push_back(LaneChangeLeft);
             }
-            available_states.push_back("PLCL");
+            available_states.push_back(PrepareLaneChangeLeft);
         }
-        else if(this->state.compare("PLCR") == 0 && not_in_rightmost){
+        else if(this->state == PrepareLaneChangeRight && not_in_rightmost){
             if (right_available) {
-                available_states.push_back("LCR");
+                available_states.push_back(LaneChangeRight);
             }
-            available_states.push_back("PLCR");
+            available_states.push_back(PrepareLaneChangeRight);
         }
 
     }
     return available_states;
+}
+
+string get_state_code(VehicleState state) {
+    switch (state) {
+        case KeepLane:
+            return "KL";
+        case CancelCount:
+            return "CC";
+        case Initial:
+            return "Init";
+        case PrepareLaneChangeLeft:
+            return "PLCL";
+        case PrepareLaneChangeRight:
+            return "PLCR";
+        case LaneChangeLeft:
+            return "LCL";
+        case LaneChangeRight:
+            return "LCR";
+        case Left:
+            return "Left";
+        case Right:
+            return "Right";
+        default:
+            return "Unknown";
+    }
 }
 
 void Vehicle::update_state(vector<vector<double>> predictions) {
@@ -144,7 +169,7 @@ void Vehicle::update_state(vector<vector<double>> predictions) {
 
     std::cout<<this->step<<" states:";
     for(int i = 0; i < to.state_list.size(); ++i) {
-        std::cout<<" "<<to.state_list[i] << " ";
+        std::cout << " "<< get_state_code(to.state_list[i]) << " ";
     }
     std::cout<<"| cost: " << to.cost << "" << std::endl;
 
@@ -183,7 +208,7 @@ Vehicle::TrajectoryObject Vehicle::get_next_state_recursive(vector<vector<double
 
     // 3. get available states.
     Vehicle snapshot = this->copy_vehicle();
-    vector<string> available_states = this->get_available_states();
+    vector<VehicleState> available_states = this->get_available_states();
     vector<Vehicle::TrajectoryObject> to_list;
 
     vector<double> costs;
@@ -195,7 +220,7 @@ Vehicle::TrajectoryObject Vehicle::get_next_state_recursive(vector<vector<double
         to.state_list.push_back(st);
 
         this->realize_state(predictions);
-        if(state.compare("CC") == 0) {
+        if(state == CancelCount) {
             to.cancel_count++;
         }
         if (this->target_lane != this->current_lane) {
@@ -325,37 +350,25 @@ void Vehicle::realize_state(vector<vector<double>> predictions) {
     Given a state, realize it by adjusting acceleration and lane.
     Note - lane changes happen instantaneously.
     */
-    string state = this->state;
-    if(state.compare("CC") == 0)
-    {
-        if (this->target_d < this->d)
-        {
-            realize_lane_change("R");
+    auto state = this->state;
+    if (state == CancelCount) {
+        if (this->target_d < this->d) {
+            realize_lane_change(Right);
+        } else if (this->target_d > this->d) {
+            realize_lane_change(Left);
         }
-        else if (this->target_d > this->d)
-        {
-            realize_lane_change("L");
-        }
-    }
-    else if(state.compare("LCL") == 0)
-    {
+    } else if (state == LaneChangeLeft) {
         this->plcl_lcl = false;
-        realize_lane_change("L");
-    }
-    else if(state.compare("LCR") == 0)
-    {
+        realize_lane_change(Left);
+    } else if (state == LaneChangeRight) {
         this->plcr_lcr = false;
-        realize_lane_change("R");
-    }
-    else if(state.compare("PLCL") == 0)
-    {
+        realize_lane_change(Right);
+    } else if (state == PrepareLaneChangeLeft) {
         this->plcl_lcl = true;
-        realize_prep_lane_change("L");
-    }
-    else if(state.compare("PLCR") == 0)
-    {
+        realize_prep_lane_change(Left);
+    } else if (state == PrepareLaneChangeRight) {
         this->plcr_lcr = true;
-        realize_prep_lane_change("R");
+        realize_prep_lane_change(Right);
     }
 }
 
@@ -468,8 +481,7 @@ double Vehicle::get_lowest_time_front(vector<vector<double>> predictions) {
         double other_v = other[3];
         double time_to = TIME_DISTANCE;
         other_s += other_v * t_step;
-        if(fabs(other_d - ego_td) <= CAR_WIDTH && other_s >= ego_s)
-        {
+        if(fabs(other_d - ego_td) <= CAR_WIDTH && other_s >= ego_s) {
             time_to = time_to_collision(other_s, ego_s, other_v, MAX_V);
 
             if (time_to > 0.0 && time_to < lowest_time_front) {
@@ -485,22 +497,13 @@ void Vehicle::update_current_a(double time) {
     this->a = this->a_list[t_step];
 }
 
-void Vehicle::realize_lane_change(string dir) {
-    int delta = -1;
-    if (dir.compare("R") == 0) {
-        delta = 1;
-    }
-    this->target_lane = this->target_lane + delta;
+void Vehicle::realize_lane_change(VehicleState dir) {
+    this->target_lane += (dir == Right ? 1 : -1);
     this->prep_lane = this->target_lane;
     this->target_d = get_d(this->target_lane);
     this->lane_changing = true;
 }
 
-void Vehicle::realize_prep_lane_change(string dir) {
-    int delta = -1;
-    if (dir.compare("R") == 0)
-    {
-        delta = 1;
-    }
-    this->prep_lane = this->target_lane + delta;
+void Vehicle::realize_prep_lane_change(VehicleState dir) {
+    this->prep_lane = this->target_lane + (dir == Right ? 1 : -1);
 }

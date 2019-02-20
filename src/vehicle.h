@@ -2,6 +2,7 @@
 #define VEHICLE_H
 
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,17 @@ struct StepObject{
     double closest_approach;
 };
 
+enum VehicleState {
+    KeepLane,
+    CancelCount,
+    Initial,
+    PrepareLaneChangeLeft,
+    PrepareLaneChangeRight,
+    LaneChangeLeft,
+    LaneChangeRight,
+    Left,
+    Right
+};
 
 class Vehicle {
 public:
@@ -31,8 +43,8 @@ public:
         vector<double> lowest_time_front_list;
         int total_lane_changes = 0;
 
-        string state;
-        vector<string> state_list;
+        VehicleState state;
+        vector<VehicleState> state_list;
         double cost;
     };
 
@@ -61,7 +73,7 @@ public:
 
   double target_speed;
 
-  string state;
+  VehicleState state;
 
   bool lane_changing;
   bool lane_change_finish;
@@ -87,7 +99,7 @@ public:
 
   void restore_vehicle(Vehicle snapshot);
 
-  vector<string> get_available_states();
+  vector<VehicleState> get_available_states();
 
   void update_state(vector<vector<double>> sensor_fusion);
 
@@ -97,9 +109,9 @@ public:
 
   void realize_state(vector<vector<double>> predictions);
 
-  void realize_lane_change(string direction);
+  void realize_lane_change(VehicleState direction);
 
-  void realize_prep_lane_change(string direction);
+  void realize_prep_lane_change(VehicleState direction);
 
   StepObject acc_for_d(vector<vector<double>> predictions);
 

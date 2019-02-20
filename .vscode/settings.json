@@ -5,6 +5,7 @@
         "string": "cpp",
         "vector": "cpp",
         "locale": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "unordered_map": "cpp"
     }
 }

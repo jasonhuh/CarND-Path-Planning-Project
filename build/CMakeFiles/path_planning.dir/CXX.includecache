@@ -943,6 +943,8 @@ settings.h
 /home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
 map
 -
+unordered_map
+-
 string
 -
 vector
