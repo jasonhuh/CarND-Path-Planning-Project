@@ -44,7 +44,7 @@ double inefficiency_cost(double speed_sum, int step_count, double target_speed){
     if (abs(diff) > 0.01) {
         cost += 20.0;
     }
-    return cost + (pct * EFFICIENCY);
+    return cost + (pct * INEFFICIENCY);
 }
 
 double near_cost(vector<double> closest_approach_list) {
@@ -101,7 +101,7 @@ double at_lane_cost(vector<Vehicle> trajectory){
 }
 
 double calculate_cost(Vehicle& vehicle,
-                      Vehicle::TrajectoryObject to){
+                      Vehicle::VehicleState to){
     double cost = 0.0;
     cost += inefficiency_cost(to.v_sum, to.step_count, vehicle.target_speed);
     cost += near_cost(to.closest_approach_list);

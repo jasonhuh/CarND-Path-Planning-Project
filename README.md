@@ -146,18 +146,71 @@ A well written README file can enhance your project and portfolio.  Develop your
 
 ## Note
 
+### Snapshot of the Youtube video
+
+TBD
+
 ### Model documentation
 
 Model-Based vs Data-Driven.
 
 The project uses model based approach.
 
-spline
+### Libaries
+
+- Spline
+- Eigen (Already included in the basic project)
+
+
+### Behavior control
 
 ![Behavior Control](/images/behavior_control.png)
 
+### Finite State Machine
+
+#### States of Vehicle
 ![States of Vehicle](/images/states_of_vehicle.png)
 
-- One meter per second is about 2.237 miles per hour.
 
-### Finite State Machine
+### Cost Function
+
+
+```cpp
+
+const int COMFORT           = 10;
+const int CENTER            = 10;
+const int PREPARE_WO_CHANGE = 10;
+const int CANCEL_COST       = 100;
+const int OCCUPIED_LANE     = 500;
+const int DANGER            = 1000;
+const int NEAR              = 10000;
+const int INEFFICIENCY      = 10000;
+const double MAX_COST       = 1000000; // 1M
+
+
+```
+
+```cpp
+
+double calculate_cost(Vehicle& vehicle,
+                      Vehicle::VehicleState to){
+    double cost = 0.0;
+    cost += inefficiency_cost(to.v_sum, to.step_count, vehicle.target_speed);
+    cost += near_cost(to.closest_approach_list);
+    cost += occupied_cost(to.lowest_time_front_list);
+    cost += buffer_cost(to.lowest_time_list);
+    cost += change_lane_cost(to.total_lane_changes);
+    cost += at_lane_cost(to.trajectory);
+    cost += cancel_previous_cost(to.cancel_count);
+    cost += prepare_without_change_cost(vehicle.plcl_lcl, vehicle.plcr_lcr);
+    return cost;
+}
+
+```
+
+### Units, Conversions
+
+The following units and conversions were used in this project. Most of the units are defined in the `settings.h` file.
+
+- One meter per second is about 2.237 miles per hour.
+- Width of a car lane: 4 meters

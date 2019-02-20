@@ -29,5 +29,5 @@ double change_lane_cost(int total_lane_changes);
 double at_lane_cost(vector<Vehicle> trajectory);
 
 double calculate_cost(Vehicle& vehicle,
-                      Vehicle::TrajectoryObject to);
+                      Vehicle::VehicleState to);
 #endif  // COST_H

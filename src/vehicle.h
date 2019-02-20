@@ -17,9 +17,9 @@ struct StepObject{
     double closest_approach;
 };
 
-enum VehicleState {
+enum State {
     KeepLane,
-    CancelCount,
+    CancelChange,
     Initial,
     PrepareLaneChangeLeft,
     PrepareLaneChangeRight,
@@ -31,7 +31,7 @@ enum VehicleState {
 
 class Vehicle {
 public:
-    struct TrajectoryObject{
+    struct VehicleState {
         vector<Vehicle> trajectory;
         vector<double> a_list;
         double v_sum = 0;
@@ -43,8 +43,8 @@ public:
         vector<double> lowest_time_front_list;
         int total_lane_changes = 0;
 
-        VehicleState state;
-        vector<VehicleState> state_list;
+        State state;
+        vector<State> state_list;
         double cost;
     };
 
@@ -73,7 +73,7 @@ public:
 
   double target_speed;
 
-  VehicleState state;
+  State state;
 
   bool lane_changing;
   bool lane_change_finish;
@@ -99,19 +99,19 @@ public:
 
   void restore_vehicle(Vehicle snapshot);
 
-  vector<VehicleState> get_available_states();
+  vector<State> get_available_states();
 
   void update_state(vector<vector<double>> sensor_fusion);
 
-  TrajectoryObject get_next_state_recursive(vector<vector<double>> predictions, TrajectoryObject to, int horizon = 5);
+  VehicleState get_next_state_recursive(vector<vector<double>> predictions, VehicleState to, int horizon = 5);
 
   void configure(vector<int> road_data);
 
   void realize_state(vector<vector<double>> predictions);
 
-  void realize_lane_change(VehicleState direction);
+  void realize_lane_change(State direction);
 
-  void realize_prep_lane_change(VehicleState direction);
+  void realize_prep_lane_change(State direction);
 
   StepObject acc_for_d(vector<vector<double>> predictions);
 

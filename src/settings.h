@@ -22,7 +22,7 @@ const int CANCEL_COST       = 100;
 const int OCCUPIED_LANE     = 500;
 const int DANGER            = 1000;
 const int NEAR              = 10000;
-const int EFFICIENCY        = 10000;
+const int INEFFICIENCY      = 10000;
 const double MAX_COST       = 1000000; // 1M
 
 const double DESIRED_BUFFER = 0.5;
