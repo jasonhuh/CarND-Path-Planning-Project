@@ -1,4 +1,4 @@
-# Install script for directory: /Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project
+# Install script for directory: /home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -27,6 +27,11 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   endif()
 endif()
 
+# Install shared libraries without execute permission?
+if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
+  set(CMAKE_INSTALL_SO_NO_EXE "1")
+endif()
+
 if(CMAKE_INSTALL_COMPONENT)
   set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INSTALL_COMPONENT}.txt")
 else()
@@ -35,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/macuser/Documents/Learning/CarND/CarND-Path-Planning-Project/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

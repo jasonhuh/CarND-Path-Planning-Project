@@ -15,24 +15,15 @@ const double LANE_WIDTH = 4.0; // meters
 
 const int NUM_LANES = 3; // number of car lanes
 
-// const int COMFORT           = 0xF << 1; //pow(10.0, 1);
-// const int CENTER            = 0xF << 1; //pow(10.0,1);
-// const int PREPARE_WO_CHANGE = 0xF << 1; // pow(10.0, 1);;
-// const int CANCEL_COST       = 0xF << 2; // pow(10.0, 2);
-// const int OCCUPIED_LANE     = 0xF << 3; //5 * pow(10.0,2);
-// const int DANGER            = 0xF << 4; //pow(10.0, 3);
-// const int NEAR              = 0xF << 5; //pow(10.0, 4);
-// const int EFFICIENCY        = 0xF << 5; //pow(10.0, 4);
-// const double MAXCOST        = 0xF << 6; //pow(10.0, 6);
-const int COMFORT           = pow(10.0, 1);
-const int CENTER            = pow(10.0,1);
-const int PREPARE_WO_CHANGE = pow(10.0, 1);;
-const int CANCEL_COST       = pow(10.0, 2);
-const int OCCUPIED_LANE     = 5 * pow(10.0,2);
-const int DANGER            = pow(10.0, 3);
-const int NEAR              = pow(10.0, 4);
-const int EFFICIENCY        = pow(10.0, 4);
-const double MAX_COST        = pow(10.0, 6);
+const int COMFORT           = 10;
+const int CENTER            = 10;
+const int PREPARE_WO_CHANGE = 10;
+const int CANCEL_COST       = 100;
+const int OCCUPIED_LANE     = 500;
+const int DANGER            = 1000;
+const int NEAR              = 10000;
+const int EFFICIENCY        = 10000;
+const double MAX_COST       = 1000000; // 1M
 
 const double DESIRED_BUFFER = 0.5;
 

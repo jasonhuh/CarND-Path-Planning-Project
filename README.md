@@ -146,4 +146,18 @@ A well written README file can enhance your project and portfolio.  Develop your
 
 ## Note
 
+### Model documentation
+
+Model-Based vs Data-Driven.
+
+The project uses model based approach.
+
+spline
+
+![Behavior Control](/images/behavior_control.png)
+
+![States of Vehicle](/images/states_of_vehicle.png)
+
 - One meter per second is about 2.237 miles per hour.
+
+### Finite State Machine
