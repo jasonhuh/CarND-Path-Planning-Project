@@ -103,15 +103,15 @@ public:
 
   void update_state(vector<vector<double>> sensor_fusion);
 
-  VehicleState get_next_state_recursive(vector<vector<double>> predictions, VehicleState to, int horizon = 5);
+  VehicleState get_next_state(vector<vector<double>> predictions, VehicleState to, int horizon = 5);
 
   void configure(vector<int> road_data);
 
-  void realize_state(vector<vector<double>> predictions);
+  void apply_final_state(vector<vector<double>> predictions);
 
-  void realize_lane_change(State direction);
+  void apply_lane_change(State direction);
 
-  void realize_prep_lane_change(State direction);
+  void apply_prep_lane_change(State direction);
 
   StepObject acc_for_d(vector<vector<double>> predictions);
 

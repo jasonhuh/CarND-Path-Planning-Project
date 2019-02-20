@@ -165,7 +165,7 @@ void Vehicle::update_state(vector<vector<double>> predictions) {
     this->plcr_lcr = false;
     Vehicle::VehicleState to;
 
-    to = this->get_next_state_recursive(predictions, to, PLANNING_HORIZON);
+    to = this->get_next_state(predictions, to, PLANNING_HORIZON);
 
     std::cout<<this->step<<" states:";
     for(int i = 0; i < to.state_list.size(); ++i) {
@@ -178,8 +178,8 @@ void Vehicle::update_state(vector<vector<double>> predictions) {
     this->a = this->a_list[0];
 }
 
-// collect TrajectoryData for inner steps (horizon = 1) and outer steps (horizon = 5)
-Vehicle::VehicleState Vehicle::get_next_state_recursive(vector<vector<double>> predictions, Vehicle::VehicleState trajectory_object, int horizon) {
+// collect VehicleState for inner steps (horizon = 1) and outer steps (horizon = 5)
+Vehicle::VehicleState Vehicle::get_next_state(vector<vector<double>> predictions, Vehicle::VehicleState trajectory_object, int horizon) {
     VehicleState to;
     double d_const = 0.1;
 
@@ -219,7 +219,7 @@ Vehicle::VehicleState Vehicle::get_next_state_recursive(vector<vector<double>> p
         to.trajectory.push_back(*this);
         to.state_list.push_back(st);
 
-        this->realize_state(predictions);
+        this->apply_final_state(predictions);
         if(state == CancelChange) {
             to.cancel_count++;
         }
@@ -284,7 +284,7 @@ Vehicle::VehicleState Vehicle::get_next_state_recursive(vector<vector<double>> p
           to_list.push_back(to);
         }
         else if (horizon > 1) {
-            Vehicle::VehicleState child_to = this->get_next_state_recursive(predictions, to, horizon - 1);
+            Vehicle::VehicleState child_to = this->get_next_state(predictions, to, horizon - 1);
             cost = child_to.cost;
             to_list.push_back(child_to);
         }
@@ -344,7 +344,7 @@ Vehicle Vehicle::copy_vehicle(){
     return snapshot;
 }
 
-void Vehicle::realize_state(vector<vector<double>> predictions) {
+void Vehicle::apply_final_state(vector<vector<double>> predictions) {
 
     // Given a state, realize it by adjusting acceleration and lane.
     // Note - lane changes happen instantaneously.
@@ -352,22 +352,22 @@ void Vehicle::realize_state(vector<vector<double>> predictions) {
     auto state = this->state;
     if (state == CancelChange) {
         if (this->target_d < this->d) {
-            realize_lane_change(Right);
+            apply_lane_change(Right);
         } else if (this->target_d > this->d) {
-            realize_lane_change(Left);
+            apply_lane_change(Left);
         }
     } else if (state == LaneChangeLeft) {
         this->plcl_lcl = false;
-        realize_lane_change(Left);
+        apply_lane_change(Left);
     } else if (state == LaneChangeRight) {
         this->plcr_lcr = false;
-        realize_lane_change(Right);
+        apply_lane_change(Right);
     } else if (state == PrepareLaneChangeLeft) {
         this->plcl_lcl = true;
-        realize_prep_lane_change(Left);
+        apply_prep_lane_change(Left);
     } else if (state == PrepareLaneChangeRight) {
         this->plcr_lcr = true;
-        realize_prep_lane_change(Right);
+        apply_prep_lane_change(Right);
     }
 }
 
@@ -496,13 +496,13 @@ void Vehicle::update_current_a(double time) {
     this->a = this->a_list[t_step];
 }
 
-void Vehicle::realize_lane_change(State dir) {
+void Vehicle::apply_lane_change(State dir) {
     this->target_lane += (dir == Right ? 1 : -1);
     this->prep_lane = this->target_lane;
     this->target_d = get_d(this->target_lane);
     this->lane_changing = true;
 }
 
-void Vehicle::realize_prep_lane_change(State dir) {
+void Vehicle::apply_prep_lane_change(State dir) {
     this->prep_lane = this->target_lane + (dir == Right ? 1 : -1);
 }

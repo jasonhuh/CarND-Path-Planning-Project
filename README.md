@@ -172,7 +172,9 @@ The project uses model based approach.
 ![States of Vehicle](/images/states_of_vehicle.png)
 
 
-### Cost Function
+### Trajectories cost ranking
+
+cf cost.cp
 
 
 ```cpp
@@ -208,9 +210,56 @@ double calculate_cost(Vehicle& vehicle,
 
 ```
 
-### Units, Conversions
+### Behavior planner
+
+cf behavior.cpp
+
+
+### Trajectory generation
+
+cf trajectory.cpp
+
+
+### Appendix - Units, Conversions
 
 The following units and conversions were used in this project. Most of the units are defined in the `settings.h` file.
 
 - One meter per second is about 2.237 miles per hour.
 - Width of a car lane: 4 meters
+
+
+
+# [Rubic Points](https://review.udacity.com/#!/rubrics/1971/view)
+
+## Compilation
+
+### The code compiles correctly.
+
+The CMakeLists.txt has been extended to include new cpp files, and the code has been compiled 
+and has been tested from both Mac OS X (10.13.6) and Linux (Ubuntu 16.04).
+
+## Valid trajectories
+
+### The car is able to drive at least 4.32 miles without incident.
+The car was able to drive for 30 minutes without incident.
+
+### The car drives according to the speed limit.
+No speed limit red message was seen.
+
+### Max Acceleration and Jerk are not Exceeded.
+Max jerk red message was not seen.
+
+### Car does not have collisions.
+No collisions have occurred for the duration of 30 minutes.
+
+### The car stays in its lane, except for the time between changing lanes.
+The car stayed in its lane except when it needed to change lanes.
+
+### The car is able to change lanes
+The car was able to change lanes when a slower car was ahead of the car.
+
+
+### Reflection
+
+---
+

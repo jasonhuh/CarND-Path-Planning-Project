@@ -136,7 +136,7 @@ int main() {
           }
           ego.step++;
           ego.update_state(sensor_fusion);
-          ego.realize_state(sensor_fusion);
+          ego.apply_final_state(sensor_fusion);
           ego.current_lane = get_lane(ego.d);
 
           
@@ -189,7 +189,7 @@ int main() {
           }
 
           // In Frenet add evenly 30m spaced points ahead of the starting reference.
-          for (int i = 0; i < 3; ++i){
+          for (int i = 0; i < 3; ++i) {
             double target_s = ego.s + PLANNING_DISTANCE * (i + 1);
             if (target_s > MAX_S) {
               target_s -= MAX_S;
