@@ -169,7 +169,7 @@ The project uses model based approach.
 ```cpp
 
 // Generate prediction
-vector<vector<double>> preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
+auto preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
                                     end_path_s, end_path_d, car_s, car_d);
 ego.step++;
 
