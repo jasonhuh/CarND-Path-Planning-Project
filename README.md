@@ -166,22 +166,24 @@ The project uses model based approach.
 
 ![Behavior Control](/images/behavior_control.png)
 
+The snippet of the `main.cpp` shows the implementation of the above architecture. By modularizing each component with specific responsibility such as prediction, behavior planning and trajectory generation, the current solution achieved separate of concerns and loose coupling as shown below.
+
 ```cpp
 
-// Generate prediction
+// 1. Generate prediction
 auto preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
                                     end_path_s, end_path_d, car_s, car_d);
 ego.step++;
 
-// Use cost function to update the state machine
+// 2. Use cost function to update the state machine
 Behavior::update_state(&ego, preds);
 Behavior::apply_state(&ego, preds);
 
-// Generate the final trajectory
+// 3. Generate the final trajectory
 auto traj = Trajectory::generate_trajectory(&ego, previous_path_x, previous_path_y, prev_size,
                 car_x, car_y, car_yaw, map_waypoints_x, map_waypoints_y, map_waypoints_s);
 
-// Send message back to motion control
+// 4. Send message back to motion control
 json msgJson = {
     {"next_x", traj.first},
     {"next_y", traj.second}
@@ -191,9 +193,27 @@ json msgJson = {
 
 ### Finite State Machine
 
+The solution uses the finite statement machine to track the state of the vehicle. The states that are utilized in this project are show below.
+
 #### States of Vehicle
 ![States of Vehicle](/images/states_of_vehicle.png)
 
+The list of states is found in `vehicle.h`, and here is the snippet: 
+```cpp
+
+enum State {
+    KeepLane,
+    CancelChange,
+    Initial,
+    PrepareLaneChangeLeft,
+    PrepareLaneChangeRight,
+    LaneChangeLeft,
+    LaneChangeRight,
+    Left,
+    Right
+};
+
+```
 
 ### Trajectories cost ranking
 
@@ -279,7 +299,7 @@ No collisions have occurred for the duration of 30 minutes.
 The car stayed in its lane except when it needed to change lanes.
 
 ### The car is able to change lanes
-The car was able to change lanes when a slower car was ahead of the car.
+The car was able to change lanes by itself when a slower car was ahead of the car.
 
 
 ### Reflection
