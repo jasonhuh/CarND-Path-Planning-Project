@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "behavior.h"
 #include "vehicle.h"
 #include "settings.h"
 
@@ -101,7 +102,7 @@ double at_lane_cost(vector<Vehicle> trajectory){
 }
 
 double calculate_cost(Vehicle& vehicle,
-                      Vehicle::VehicleState to){
+                      Behavior::VehicleState to){
     double cost = 0.0;
     cost += inefficiency_cost(to.v_sum, to.step_count, vehicle.target_speed);
     cost += near_cost(to.closest_approach_list);

@@ -31,23 +31,6 @@ enum State {
 
 class Vehicle {
 public:
-    struct VehicleState {
-        vector<Vehicle> trajectory;
-        vector<double> a_list;
-        double v_sum = 0;
-        double t_sum = 0;
-        int step_count = 0;
-        int cancel_count = 0;
-        vector<double> closest_approach_list;
-        vector<double> lowest_time_list;
-        vector<double> lowest_time_front_list;
-        int total_lane_changes = 0;
-
-        State state;
-        vector<State> state_list;
-        double cost;
-    };
-
 
   double preferred_buffer = 13.0; // impacts "keep lane" behavior.
 
@@ -99,23 +82,11 @@ public:
 
   void restore_vehicle(Vehicle snapshot);
 
-  vector<State> get_available_states();
-
-  void update_state(vector<vector<double>> sensor_fusion);
-
-  VehicleState get_next_state(vector<vector<double>> predictions, VehicleState to, int horizon = 5);
-
   void configure(vector<int> road_data);
-
-  void apply_final_state(vector<vector<double>> predictions);
 
   void apply_lane_change(State direction);
 
   void apply_prep_lane_change(State direction);
-
-  StepObject acc_for_d(vector<vector<double>> predictions);
-
-  double get_lowest_time_front(vector<vector<double>> predictions);
 
   void update_current_a(double time);
 };

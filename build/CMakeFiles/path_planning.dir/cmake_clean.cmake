@@ -3,8 +3,10 @@ file(REMOVE_RECURSE
   "CMakeFiles/path_planning.dir/src/prediction.cpp.o"
   "CMakeFiles/path_planning.dir/src/vehicle.cpp.o"
   "CMakeFiles/path_planning.dir/src/trajectory.cpp.o"
+  "CMakeFiles/path_planning.dir/src/behavior.cpp.o"
   "CMakeFiles/path_planning.dir/src/cost.cpp.o"
   "CMakeFiles/path_planning.dir/src/util.cpp.o"
+  "CMakeFiles/path_planning.dir/src/helpers.cpp.o"
   "path_planning.pdb"
   "path_planning"
 )

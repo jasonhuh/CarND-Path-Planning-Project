@@ -12,8 +12,10 @@ set(sources
     src/prediction.cpp
     src/vehicle.cpp
     src/trajectory.cpp
+    src/behavior.cpp
     src/cost.cpp
     src/util.cpp
+    src/helpers.cpp
     )
 
 

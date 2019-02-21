@@ -166,6 +166,29 @@ The project uses model based approach.
 
 ![Behavior Control](/images/behavior_control.png)
 
+```cpp
+
+// Generate prediction
+vector<vector<double>> preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
+                                    end_path_s, end_path_d, car_s, car_d);
+ego.step++;
+
+// Use cost function to update the state machine
+Behavior::update_state(&ego, preds);
+Behavior::apply_state(&ego, preds);
+
+// Generate the final trajectory
+auto traj = Trajectory::generate_trajectory(&ego, previous_path_x, previous_path_y, prev_size,
+                car_x, car_y, car_yaw, map_waypoints_x, map_waypoints_y, map_waypoints_s);
+
+// Send message back to motion control
+json msgJson = {
+    {"next_x", traj.first},
+    {"next_y", traj.second}
+};
+
+```          
+
 ### Finite State Machine
 
 #### States of Vehicle
@@ -264,5 +287,6 @@ The car was able to change lanes when a slower car was ahead of the car.
 Unit testing
 
 Testing is a time consuming process. C++ code is more prone to break when refactoring. Solid unit testin would be desired.
+
 ---
 

@@ -1,9 +1,12 @@
 #ifndef COST_H
 #define COST_H
 
-#include "vehicle.h"
 #include <cmath>
 #include "settings.h"
+#include "behavior.h"
+
+class Vehicle;
+class Behavior;
 
 using std::map;
 using std::string;
@@ -29,5 +32,5 @@ double change_lane_cost(int total_lane_changes);
 double at_lane_cost(vector<Vehicle> trajectory);
 
 double calculate_cost(Vehicle& vehicle,
-                      Vehicle::VehicleState to);
+                      Behavior::VehicleState to);
 #endif  // COST_H

@@ -123,6 +123,33 @@ path_planning/fast:
 	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/build
 .PHONY : path_planning/fast
 
+src/behavior.o: src/behavior.cpp.o
+
+.PHONY : src/behavior.o
+
+# target to build an object file
+src/behavior.cpp.o:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/behavior.cpp.o
+.PHONY : src/behavior.cpp.o
+
+src/behavior.i: src/behavior.cpp.i
+
+.PHONY : src/behavior.i
+
+# target to preprocess a source file
+src/behavior.cpp.i:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/behavior.cpp.i
+.PHONY : src/behavior.cpp.i
+
+src/behavior.s: src/behavior.cpp.s
+
+.PHONY : src/behavior.s
+
+# target to generate assembly for a file
+src/behavior.cpp.s:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/behavior.cpp.s
+.PHONY : src/behavior.cpp.s
+
 src/cost.o: src/cost.cpp.o
 
 .PHONY : src/cost.o
@@ -149,6 +176,33 @@ src/cost.s: src/cost.cpp.s
 src/cost.cpp.s:
 	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/cost.cpp.s
 .PHONY : src/cost.cpp.s
+
+src/helpers.o: src/helpers.cpp.o
+
+.PHONY : src/helpers.o
+
+# target to build an object file
+src/helpers.cpp.o:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/helpers.cpp.o
+.PHONY : src/helpers.cpp.o
+
+src/helpers.i: src/helpers.cpp.i
+
+.PHONY : src/helpers.i
+
+# target to preprocess a source file
+src/helpers.cpp.i:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/helpers.cpp.i
+.PHONY : src/helpers.cpp.i
+
+src/helpers.s: src/helpers.cpp.s
+
+.PHONY : src/helpers.s
+
+# target to generate assembly for a file
+src/helpers.cpp.s:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/helpers.cpp.s
+.PHONY : src/helpers.cpp.s
 
 src/main.o: src/main.cpp.o
 
@@ -294,9 +348,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... path_planning"
+	@echo "... src/behavior.o"
+	@echo "... src/behavior.i"
+	@echo "... src/behavior.s"
 	@echo "... src/cost.o"
 	@echo "... src/cost.i"
 	@echo "... src/cost.s"
+	@echo "... src/helpers.o"
+	@echo "... src/helpers.i"
+	@echo "... src/helpers.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
