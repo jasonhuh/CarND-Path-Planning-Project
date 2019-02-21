@@ -265,6 +265,8 @@ cf behavior.cpp
 
 ### Trajectory generation
 
+Trajectory generation was inspired by the project walk through in the course. 
+
 cf trajectory.cpp
 
 
