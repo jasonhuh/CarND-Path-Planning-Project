@@ -167,10 +167,20 @@ CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/Eigen-3.3/Eigen/src/plugins/
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/helpers.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/json.hpp
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/main.cpp
+CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/prediction.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/settings.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/spline.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/util.h
 CMakeFiles/path_planning.dir/src/main.cpp.o: ../src/vehicle.h
+
+CMakeFiles/path_planning.dir/src/prediction.cpp.o: ../src/prediction.cpp
+CMakeFiles/path_planning.dir/src/prediction.cpp.o: ../src/prediction.h
+CMakeFiles/path_planning.dir/src/prediction.cpp.o: ../src/settings.h
+CMakeFiles/path_planning.dir/src/prediction.cpp.o: ../src/util.h
+CMakeFiles/path_planning.dir/src/prediction.cpp.o: ../src/vehicle.h
+
+CMakeFiles/path_planning.dir/src/trajectory.cpp.o: ../src/trajectory.cpp
+CMakeFiles/path_planning.dir/src/trajectory.cpp.o: ../src/trajectory.h
 
 CMakeFiles/path_planning.dir/src/util.cpp.o: ../src/settings.h
 CMakeFiles/path_planning.dir/src/util.cpp.o: ../src/util.cpp

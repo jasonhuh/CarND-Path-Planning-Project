@@ -11,6 +11,7 @@
 #include "vehicle.h"
 #include "settings.h"
 #include "util.h"
+#include "prediction.h"
 
 // for convenience
 using nlohmann::json;
@@ -97,46 +98,15 @@ int main() {
 
           auto prev_size = previous_path_x.size();
 
-          // Use sensor fusion
+
           car_speed = miles_per_hour_to_meters_per_second(car_speed);
 
-          if (prev_size > 0) {
-            ego.s = end_path_s;
-            ego.d = end_path_d;
-            if (ego.d < 1.0) {
-              ego.d = 1.0;
-            }
-            else if (ego.d > (LANE_WIDTH * NUM_LANES) - 1.0) {
-              ego.d = (LANE_WIDTH * NUM_LANES) - 1.0;
-            }
-
-            vector<vector<double>> filtered_sensor_fusion;
-            for (int i = 0; i < sensor_fusion.size(); ++i) {
-              vector<double> other = sensor_fusion[i];
-              int other_id = (int)other[0];
-              double other_s = other[5];
-              double other_d = other[6];
-              double other_v = sqrt(pow(other[3],2) + pow(other[4],2));
-              double other_sn = other_s + other_v * prev_size * tint;
-              int other_l = get_lane(other_d);
-
-              if ((other_l < 0 || other_l >= NUM_LANES) ||
-                  ((other_s - car_s) <= -70.0)) {
-              }
-              else {
-                  other[5] = other_sn;
-                  filtered_sensor_fusion.push_back({(double)other_id,other_sn, other_d, other_v});
-              }
-            }
-            sensor_fusion = filtered_sensor_fusion;
-          }
-          else {
-            ego.s = car_s;
-            ego.d = car_d;
-          }
+          // Use sensor fusion and generate predictions
+          vector<vector<double>> preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
+                                                end_path_s, end_path_d, car_s, car_d);
           ego.step++;
-          ego.update_state(sensor_fusion);
-          ego.apply_final_state(sensor_fusion);
+          ego.update_state(preds);
+          ego.apply_final_state(preds);
           ego.current_lane = get_lane(ego.d);
 
           

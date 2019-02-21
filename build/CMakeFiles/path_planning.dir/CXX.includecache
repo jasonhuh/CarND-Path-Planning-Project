@@ -891,6 +891,22 @@ settings.h
 /home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
 util.h
 /home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.h
+prediction.h
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/prediction.h
+
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/prediction.cpp
+prediction.h
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/prediction.h
+vehicle.h
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/vehicle.h
+util.h
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.h
+settings.h
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
+
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/prediction.h
+vector
+-
 
 /home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/settings.h
 cmath
@@ -905,6 +921,12 @@ vector
 -
 algorithm
 -
+
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/trajectory.cpp
+trajectory.h
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/trajectory.h
+
+/home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/trajectory.h
 
 /home/hankey0/Documents/Learning/CarND/CarND-Path-Planning-Project/src/util.cpp
 util.h

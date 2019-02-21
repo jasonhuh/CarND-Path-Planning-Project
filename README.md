@@ -261,5 +261,8 @@ The car was able to change lanes when a slower car was ahead of the car.
 
 ### Reflection
 
+Unit testing
+
+Testing is a time consuming process. C++ code is more prone to break when refactoring. Solid unit testin would be desired.
 ---
 
