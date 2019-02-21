@@ -9,7 +9,7 @@ const double aint = 0.185;
 
 const double MAX_V = 49.84 * 0.44704; // meters per second for 49.95 miles per hour
 const double MAX_S = 6945.554; // max s before finishing around the track
-const double MAX_A = aint / tint;
+const double MAX_ACC = aint / tint; // max acceleration
 
 const double LANE_WIDTH = 4.0; // meters
 

@@ -16,7 +16,7 @@ using std::vector;
 /**
  * Initializes Vehicle
  */
-Vehicle::Vehicle(int lane, double s, double v, double a, double target_speed) {
+Vehicle::Vehicle(int lane, double s, double v, double acceleration, double target_speed) {
 
     this->target_lane = lane;
     this->current_lane = lane;
@@ -24,7 +24,7 @@ Vehicle::Vehicle(int lane, double s, double v, double a, double target_speed) {
     this->target_d = get_d(lane);
     this->s = s;
     this->v = v;
-    this->a = a;
+    this->acc = acceleration;    
     this->state = Initial;
     this->step = 0;
     this->target_speed = target_speed;
@@ -41,7 +41,7 @@ void Vehicle::restore_vehicle(Vehicle snapshot){
     this->target_lane = snapshot.target_lane;
     this->s = snapshot.s;
     this->v = snapshot.v;
-    this->a = snapshot.a;
+    this->acc = snapshot.acc;
     this->state = snapshot.state;
     this->target_speed = snapshot.target_speed;
     this->d = snapshot.d;
@@ -56,7 +56,7 @@ void Vehicle::restore_vehicle(Vehicle snapshot){
 }
 
 Vehicle Vehicle::copy_vehicle(){
-    Vehicle snapshot = Vehicle(this->target_lane,this->s,this->v,this->a,this->target_speed);
+    Vehicle snapshot = Vehicle(this->target_lane,this->s,this->v,this->acc,this->target_speed);
     snapshot.d = this->d;
     snapshot.target_d = this->target_d;
     snapshot.state = this->state;
@@ -72,7 +72,7 @@ Vehicle Vehicle::copy_vehicle(){
 
 void Vehicle::update_current_a(double time) {
     double t_step = (int)(ceil(time / tpint));
-    this->a = this->a_list[t_step];
+    this->acc = this->acc_list[t_step];
 }
 
 void Vehicle::apply_lane_change(State dir) {

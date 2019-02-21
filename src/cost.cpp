@@ -25,9 +25,9 @@ double cancel_previous_cost(int cancel_count){
     return cancel_count * CANCEL_COST;
 }
 
-double prepare_without_change_cost(bool plcl_lcr, bool plcr_lcr){
+double prepare_without_change_cost(bool plcl_lcl, bool plcr_lcr){
     double cost = 0.0;
-    if (plcl_lcr) {
+    if (plcl_lcl) {
         cost++;
     }
     if (plcr_lcr) {
@@ -65,8 +65,7 @@ double occupied_cost(vector<double> lowest_time_front_list) {
     for (auto lowest_time_front : lowest_time_front_list) {
       if (lowest_time_front <= 0.0) {
           cost += 1.0 * DANGER;
-      }
-      else if (lowest_time_front < TIME_DISTANCE) {
+      } else if (lowest_time_front < TIME_DISTANCE) {
           double multiplier = 1.0 / lowest_time_front;
           cost += multiplier * OCCUPIED_LANE;
       }
@@ -109,7 +108,7 @@ double calculate_cost(Vehicle& vehicle,
     cost += occupied_cost(to.lowest_time_front_list);
     cost += buffer_cost(to.lowest_time_list);
     cost += change_lane_cost(to.total_lane_changes);
-    cost += at_lane_cost(to.trajectory);
+    cost += at_lane_cost(to.projection);
     cost += cancel_previous_cost(to.cancel_count);
     cost += prepare_without_change_cost(vehicle.plcl_lcl, vehicle.plcr_lcr);
     return cost;

@@ -57,8 +57,7 @@ vector<vector<double>>  filter_predictions_by_d_range(
     if (d1 < d2) {
         d_small = d1;
         d_big = d2;
-    }
-    else {
+    } else {
         d_small = d2;
         d_big = d1;
     }
@@ -66,8 +65,7 @@ vector<vector<double>>  filter_predictions_by_d_range(
     for (int i = 0; i < predictions.size(); ++i) {
         vector<double> ocar = predictions[i];
         double other_d = ocar[2];
-        if((other_d >= d_small - CAR_WIDTH) && (other_d <= d_big + CAR_WIDTH))
-        {
+        if((other_d >= d_small - CAR_WIDTH) && (other_d <= d_big + CAR_WIDTH)) {
             filtered.push_back(ocar);
         }
     }
@@ -123,7 +121,6 @@ vector<State> Behavior::get_available_states(Vehicle *ego) {
             }
             available_states.push_back(PrepareLaneChangeRight);
         }
-
     }
     return available_states;
 }
@@ -206,8 +203,8 @@ void Behavior::update_state(Vehicle *ego, vector<vector<double>> predictions) {
     std::cout<<"| cost: " << get_color_code(to.cost) << to.cost << RESET << "" << std::endl;
 
     ego->state = to.state;
-    ego->a_list = to.a_list;
-    ego->a = ego->a_list[0];
+    ego->acc_list = to.acc_list;
+    ego->acc = ego->acc_list[0];
 }
 
 // collect VehicleState for inner steps (horizon = 1) and outer steps (horizon = 5)
@@ -224,14 +221,12 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
     double dd = df - di;
     double dd_abs = fabs(dd);
 
-
     // End of lane changeing
     if (ego->lane_changing) {
         if (ego->lane_change_finish) {
             ego->lane_changing = false;
             ego->lane_change_finish = false;
-        }
-        else if (dd_abs < d_const) {
+        } else if (dd_abs < d_const) {
             ego->lane_change_finish = true;
         }
     }
@@ -248,7 +243,7 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
         to = trajectory_object;
         ego->state = st;
         to.state = st;
-        to.trajectory.push_back(*ego);
+        to.projection.push_back(*ego);
         to.state_list.push_back(st);
 
         Behavior::apply_state(ego, predictions);
@@ -277,7 +272,7 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
             // filters should be used, not all others should be considered, filter by s, filter by ...., filter by d,
             // it is assumed that others wont change d!!! this assumption may be used. with notification.
             StepObject so = Behavior::acc_for_d(ego, filtered_s_d_range);
-            ego->a = so.a;
+            ego->acc = so.a;
             if (so.lowest_time < lowest_time) {
                 lowest_time = so.lowest_time;
             }
@@ -291,8 +286,7 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
 
                 if (fabs(ego->d - df) <= fabs(d_step)) {
                     ego->d = df;
-                }
-                else {
+                } else {
                     ego->d += d_step;
                 }
             }
@@ -300,8 +294,8 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
             to.v_sum += ego->v;
             to.step_count++;
             to.t_sum += tpint;
-            to.a_list.push_back(ego->a);
-            ego->v += tpint * ego->a;
+            to.acc_list.push_back(ego->acc);
+            ego->v += tpint * ego->acc;
         }
         to.closest_approach_list.push_back(closest_approach);
         to.lowest_time_list.push_back(lowest_time);
@@ -310,8 +304,7 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
 
         double cost = MAX_COST;
         if (closest_approach < (CAR_LENGTH / 2.0)) {
-          to.trajectory.push_back(ego->copy_vehicle());
-
+          to.projection.push_back(ego->copy_vehicle());
           to.cost = MAX_COST;
           to_list.push_back(to);
         }
@@ -319,9 +312,8 @@ Behavior::VehicleState Behavior::get_next_state(Vehicle *ego, vector<vector<doub
             Behavior::VehicleState child_to = Behavior::get_next_state(ego, predictions, to, horizon - 1);
             cost = child_to.cost;
             to_list.push_back(child_to);
-        }
-        else {
-            to.trajectory.push_back(ego->copy_vehicle());
+        } else {
+            to.projection.push_back(ego->copy_vehicle());
             cost = calculate_cost(*ego, to);
             to.cost = cost;
             to_list.push_back(to);
@@ -377,7 +369,7 @@ void Behavior::apply_state(Vehicle *ego, vector<vector<double>> predictions) {
 StepObject Behavior::acc_for_d(Vehicle *ego, vector<vector<double>> predictions) {
     StepObject so;
     double delta_v_til_target = ego->target_speed - ego->v;
-    double max_acc = fmin(MAX_A, delta_v_til_target);
+    double max_acc = fmin(MAX_ACC, delta_v_til_target);
 
     double car_s = ego->s;
     double car_d = ego->d;
@@ -398,8 +390,7 @@ StepObject Behavior::acc_for_d(Vehicle *ego, vector<vector<double>> predictions)
     if (car_d < car_td) {
         d_small = car_d - CAR_WIDTH;
         d_big = car_td + CAR_WIDTH;
-    }
-    else {
+    } else {
         d_small = car_td - CAR_WIDTH;
         d_big = car_d + CAR_WIDTH;
     }
@@ -409,8 +400,7 @@ StepObject Behavior::acc_for_d(Vehicle *ego, vector<vector<double>> predictions)
         double other_d = other[2];
         double other_v = other[3];
         other_s += other_v * t_step;
-        if((other_d >= d_small) && (other_d <= d_big))
-        {
+        if ((other_d >= d_small) && (other_d <= d_big)) {
             double s_dif = other_s - car_s;
             if (s_dif >= 0.0 && s_dif < min_s_dif) {
                 min_s_dif = s_dif;
@@ -423,11 +413,9 @@ StepObject Behavior::acc_for_d(Vehicle *ego, vector<vector<double>> predictions)
                 double time_to = DESIRED_BUFFER;
                 if (dist_abs <= CAR_LENGTH) {
                     time_to = 0.0;
-                }
-                else if (other_s > car_s) {
+                } else if (other_s > car_s) {
                     time_to = time_to_collision(other_s, car_s + CAR_LENGTH, other_v, car_v);
-                }
-                else {
+                } else {
                     time_to = time_to_collision(other_s + CAR_LENGTH, car_s, other_v, car_v);
                 }
 
@@ -453,14 +441,14 @@ StepObject Behavior::acc_for_d(Vehicle *ego, vector<vector<double>> predictions)
       double separation_next = next_pos - my_next;
       double available_room = separation_next - ego->preferred_buffer;
       max_acc = fmin(max_acc, available_room);
-      max_acc = fmax(max_acc, - MAX_A);
+      max_acc = fmax(max_acc, - MAX_ACC);
     }
 
     so.a = max_acc;
     so.lowest_time = lowest_time;
     so.closest_approach = closest_approach;
 
-    ego->a = max_acc;
+    ego->acc = max_acc;
 
     return so;
 }
@@ -482,7 +470,7 @@ double Behavior::get_lowest_time_front(Vehicle *ego, vector<vector<double>> pred
         double other_v = other[3];
         double time_to = TIME_DISTANCE;
         other_s += other_v * t_step;
-        if(fabs(other_d - ego_td) <= CAR_WIDTH && other_s >= ego_s) {
+        if (fabs(other_d - ego_td) <= CAR_WIDTH && other_s >= ego_s) {
             time_to = time_to_collision(other_s, ego_s, other_v, MAX_V);
 
             if (time_to > 0.0 && time_to < lowest_time_front) {

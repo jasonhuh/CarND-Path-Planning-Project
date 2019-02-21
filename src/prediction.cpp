@@ -12,8 +12,7 @@ vector<vector<double>> Prediction::generate_prediction(Vehicle* ego, vector<vect
         ego->d = end_path_d;
         if (ego->d < 1.0) {
             ego->d = 1.0;
-        }
-        else if (ego->d > (LANE_WIDTH * NUM_LANES) - 1.0) {
+        } else if (ego->d > (LANE_WIDTH * NUM_LANES) - 1.0) {
             ego->d = (LANE_WIDTH * NUM_LANES) - 1.0;
         }
 
@@ -28,8 +27,7 @@ vector<vector<double>> Prediction::generate_prediction(Vehicle* ego, vector<vect
 
             if ((other_l < 0 || other_l >= NUM_LANES) ||
                 ((other_s - car_s) <= -70.0)) {
-            }
-            else {
+            } else {
                 other[5] = other_sn;
                 preds.push_back({(double)other_id,other_sn, other_d, other_v});
             }

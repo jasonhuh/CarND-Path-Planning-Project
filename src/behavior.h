@@ -16,8 +16,8 @@ class Vehicle;
 class Behavior {
 public:
     struct VehicleState {
-        vector<Vehicle> trajectory;
-        vector<double> a_list;
+        vector<Vehicle> projection;
+        vector<double> acc_list;
         double v_sum = 0;
         double t_sum = 0;
         int step_count = 0;

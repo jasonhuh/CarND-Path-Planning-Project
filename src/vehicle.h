@@ -50,9 +50,9 @@ public:
 
   double v;
 
-  double a;
+  double acc;
 
-  vector<double> a_list;
+  vector<double> acc_list;
 
   double target_speed;
 
@@ -70,7 +70,7 @@ public:
   /**
   * Constructor
   */
-  Vehicle(int lane, double s, double v, double a, double target_speed);
+  Vehicle(int lane, double s, double v, double acceleration, double target_speed);
 
 
   /**

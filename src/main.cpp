@@ -104,7 +104,7 @@ int main() {
           car_speed = miles_per_hour_to_meters_per_second(car_speed);
 
           // Generate prediction
-          vector<vector<double>> preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
+          auto preds = Prediction::generate_prediction(&ego, sensor_fusion, prev_size, 
                                               end_path_s, end_path_d, car_s, car_d);
           ego.step++;
 
