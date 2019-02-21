@@ -152,11 +152,12 @@ TBD
 
 ### Model documentation
 
-Model-Based vs Data-Driven.
-
-The project uses model based approach.
+For prediction, the project leverages the model based approach instead of data driven or hybrid approach because the scenarios for this project are not complex enough to 
+leverage data drive approach or hybrid approach that leverages machine learning technique which requires large mount of training data to be effective.
 
 ### Libaries
+
+As the project walkthrough suggested, this project utilizes the `spline` library insead of polynomial trajectory generation as `spline` is simple to use.
 
 - Spline
 - Eigen (Already included in the basic project)
@@ -217,6 +218,8 @@ enum State {
 
 ### Trajectories cost ranking
 
+For each trajectory, cost is calculated, and the trajectory with the lowest cost will be chosen.
+
 cf cost.cp
 
 
@@ -254,6 +257,8 @@ double calculate_cost(Vehicle& vehicle,
 ```
 
 ### Behavior planner
+
+
 
 cf behavior.cpp
 
