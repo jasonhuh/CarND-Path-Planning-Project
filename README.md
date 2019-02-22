@@ -276,10 +276,58 @@ double calculate_cost(Vehicle& vehicle,
 
 Trajectory generation was inspired by the project walkthrough video in the course as well as the Python solution to the "Implement Behavior Planner in C++" quiz in the course.
 
-The spline library has been utilized for calculating y values as a function of x values. As provided in the walkthrough video, the last point of the vehicle and the point prior that was used were used as the initial two points. Three following points were also added to the spline. 
-
 [cf trajectory.cpp](src/trajectory.cpp)
 
+```cpp
+  // If previous path is almost empty, use the car as starting reference
+  if (prev_size < 2) {
+    // use two points that make the path tangent to the car
+    double prev_car_x = car_x - cos(car_yaw);
+    double prev_car_y = car_y - sin(car_yaw);
+
+    ptsx.push_back(prev_car_x);
+    ptsx.push_back(car_x);
+
+    ptsy.push_back(prev_car_y);
+    ptsy.push_back(car_y);
+  }
+  // use the previous path's end point as starting reference
+  else {
+
+    // redefine reference state as previous path end point
+    ref_x = previous_path_x[prev_size - 1];
+    ref_y = previous_path_y[prev_size - 1];
+
+    double ref_x_prev = previous_path_x[prev_size - 2];
+    double ref_y_prev = previous_path_y[prev_size - 2];
+    ref_yaw = atan2(ref_y - ref_y_prev, ref_x - ref_x_prev);
+
+    // use two points that make the path tangent to the previous path's end point
+    ptsx.push_back(ref_x_prev);
+    ptsx.push_back(ref_x);
+
+    ptsy.push_back(ref_y_prev);
+    ptsy.push_back(ref_y);
+  }
+```
+
+
+The spline library has been utilized for calculating y values as a function of x values. As provided in the walkthrough video, the last point of the vehicle and the point prior that was used were used as the initial two points. Three following points were also added to the spline. 
+
+
+```cpp
+  // create a spline
+  tk::spline s;
+
+  // set(x, y) points to the spline
+  s.set_points(ptsx, ptsy);
+
+  // Start with all of the previous path points from last time
+  for (int i = 0; i < prev_size; ++i){
+    next_x_vals.push_back(previous_path_x[i]);
+    next_y_vals.push_back(previous_path_y[i]);
+  }
+```
 ### Appendix - Units, Conversions
 
 The following units and conversions were used in this project. Most of the units are defined in the [settings.h](src/settings.h) file.
