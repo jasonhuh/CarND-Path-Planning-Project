@@ -150,10 +150,6 @@ A well written README file can enhance your project and portfolio.  Develop your
 
 TBD
 
-### Model documentation
-
-For prediction, the project leverages the model based approach instead of data driven or hybrid approach because the scenarios for this project are not complex enough to 
-leverage data drive approach or hybrid approach that leverages machine learning technique which requires large mount of training data to be effective.
 
 ### Libaries
 
@@ -192,7 +188,21 @@ json msgJson = {
 
 ```          
 
-### Finite State Machine
+
+### Predictions
+
+For prediction, the project leverages the model based approach instead of data driven or hybrid approach because the scenarios for this project are not complex enough to 
+leverage data drive approach or hybrid approach that leverages machine learning technique which requires large mount of training data to be effective.
+
+cf prediction.cpp
+
+### Behavior planner
+
+The behavior planner is responsible for suggesting the states / maneuvers which are feasible, safe, legal and efficient. This module leverages a finite state machine and a set of cost functions to determine the next state to transition into.
+
+cf behavior.cpp
+
+#### Finite State Machine
 
 The solution uses the finite statement machine to track the state of the vehicle. The states that are utilized in this project are show below.
 
@@ -216,7 +226,7 @@ enum State {
 
 ```
 
-### Trajectories cost ranking
+#### Trajectories cost ranking
 
 For each trajectory, cost is calculated, and the trajectory with the lowest cost will be chosen.
 
@@ -256,19 +266,11 @@ double calculate_cost(Vehicle& vehicle,
 
 ```
 
-### Behavior planner
-
-
-
-cf behavior.cpp
-
-
 ### Trajectory generation
 
 Trajectory generation was inspired by the project walk through in the course. 
 
 cf trajectory.cpp
-
 
 ### Appendix - Units, Conversions
 
@@ -276,8 +278,6 @@ The following units and conversions were used in this project. Most of the units
 
 - One meter per second is about 2.237 miles per hour.
 - Width of a car lane: 4 meters
-
-
 
 # [Rubic Points](https://review.udacity.com/#!/rubrics/1971/view)
 
