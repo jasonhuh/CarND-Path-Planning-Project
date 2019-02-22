@@ -326,6 +326,7 @@ In Frenet, add evenly 30 meter spaced points ahead of the starting reference. In
 
 The spline library has been utilized for calculating y values as a function of x values. As provided in the walkthrough video, the last point of the vehicle and the point prior that was used were used as the initial two points. Three following points were also added to the spline. 
 
+![Spline](/images/spline.jpg)
 
 ```cpp
   // create a spline
@@ -341,9 +342,19 @@ The spline library has been utilized for calculating y values as a function of x
   }
 ```
 
+Example of calculating y value as a function of x value using `spline`.
+```cpp
+
+double N = (target_dist/(tint * ego->v));
+double x_point = x_add_on + (target_x / N);
+double y_point = s(x_point);
+
+```
 ### Conclusion
 
-TBD
+I would like to thank you Udacity and the instructors from Mercedes-Benz for proving easy-to-understand yet advanced course on the topic of path planning and providing the opportunity to build a
+path planning project from ground-up. Also, I would like to thank Aaron
+Brown from Udacity for distributing this great car simulator.
 
 
 ### Appendix - Units, Conversions
