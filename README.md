@@ -200,7 +200,7 @@ leverage data drive approach or hybrid approach that leverages machine learning 
 
 The behavior planner is responsible for suggesting the states / maneuvers which are feasible, safe, legal and efficient. This module leverages a finite state machine and a set of cost functions to determine the next state to transition into.
 
-cf behavior.cpp
+[cf behavior.cpp](src/behavior.cpp)
 
 #### Finite State Machine
 
@@ -209,7 +209,7 @@ The solution uses the finite statement machine to track the state of the vehicle
 #### States of Vehicle
 ![States of Vehicle](/images/states_of_vehicle.png)
 
-The list of states is found in `vehicle.h`, and here is the snippet: 
+The list of states is found in [vehicle.h](src/vehicle.h), and here is the snippet: 
 ```cpp
 
 enum State {
@@ -230,7 +230,7 @@ enum State {
 
 For each trajectory, cost is calculated, and the trajectory with the lowest cost will be chosen.
 
-cf cost.cp
+[cf cost.cp](src/cost.cpp)
 
 
 ```cpp
@@ -270,11 +270,11 @@ double calculate_cost(Vehicle& vehicle,
 
 Trajectory generation was inspired by the project walk through in the course. 
 
-cf trajectory.cpp
+[cf trajectory.cpp](src/trajectory.cpp)
 
 ### Appendix - Units, Conversions
 
-The following units and conversions were used in this project. Most of the units are defined in the `settings.h` file.
+The following units and conversions were used in this project. Most of the units are defined in the [settings.h](src/settings.h) file.
 
 - One meter per second is about 2.237 miles per hour.
 - Width of a car lane: 4 meters
