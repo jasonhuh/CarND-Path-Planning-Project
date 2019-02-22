@@ -200,6 +200,29 @@ leverage data drive approach or hybrid approach that leverages machine learning 
 
 [cf prediction.cpp](src/prediction.cpp)
 
+The prediction module leverages the data from sensor fusion, detects other cars that are within the range of interest, and build predictions.
+
+```cpp
+// Using sensor fusion, build prediction.
+for (int i = 0; i < sensor_fusion.size(); ++i) {
+    vector<double> other = sensor_fusion[i];
+    int other_id = (int)other[SF_ID_IDX];
+    double other_s = other[SF_S_IDX];
+    double other_d = other[SF_D_IDX];
+    double other_v = sqrt(pow(other[SF_X_IDX],2) + pow(other[SF_Y_IDX],2));
+    double other_sn = other_s + other_v * prev_size * tint;
+    int other_l = get_lane(other_d);
+
+    // Other car is within the range of interest.
+    if ((other_l >= 0 && other_l < NUM_LANES) &&
+        ((other_s - car_s) > -REAR_CAR_REACTION_RANGE)) {
+        other[5] = other_sn;
+        preds.push_back({(double)other_id,other_sn, other_d, other_v});
+    }
+}
+
+```
+
 ### Behavior planner
 
 The behavior planner is responsible for suggesting the states / maneuvers which are feasible, safe, legal and efficient. This module leverages a finite state machine and a set of cost functions to determine the next state to transition into.
@@ -309,6 +332,31 @@ Trajectory generation was inspired by the project walkthrough video in the cours
     ptsy.push_back(ref_y_prev);
     ptsy.push_back(ref_y);
   }
+```
+
+In Frenet, add evenly 30 meter spaced points ahead of the starting reference. In the code below, `PLANNING_DISTANCE` is 30 meters, and `LANE_WIDTH` is 4 meters.
+
+```cpp
+
+  for (int i = 0; i < 3; ++i) {
+    double target_s = ego->s + PLANNING_DISTANCE * (i + 1);
+    if (target_s > MAX_S) {
+      target_s -= MAX_S;
+    }
+    double target_d = ego->target_d;
+    if (i == 0) {
+      if (target_d - ego->d < - LANE_WIDTH) {
+          target_d = ego->d - LANE_WIDTH;
+      } else if (target_d - ego->d > LANE_WIDTH) {
+          target_d = ego->d + LANE_WIDTH;
+      }
+    }
+
+    vector<double> next_wp = getXY(target_s, target_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);
+    ptsx.push_back(next_wp[0]);
+    ptsy.push_back(next_wp[1]);
+  }
+
 ```
 
 

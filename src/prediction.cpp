@@ -15,19 +15,19 @@ vector<vector<double>> Prediction::generate_prediction(Vehicle* ego, vector<vect
         } else if (ego->d > (LANE_WIDTH * NUM_LANES) - 1.0) {
             ego->d = (LANE_WIDTH * NUM_LANES) - 1.0;
         }
-
+        // Using sensor fusion, build prediction.
         for (int i = 0; i < sensor_fusion.size(); ++i) {
             vector<double> other = sensor_fusion[i];
-            int other_id = (int)other[0];
-            double other_s = other[5];
-            double other_d = other[6];
-            double other_v = sqrt(pow(other[3],2) + pow(other[4],2));
+            int other_id = (int)other[SF_ID_IDX];
+            double other_s = other[SF_S_IDX];
+            double other_d = other[SF_D_IDX];
+            double other_v = sqrt(pow(other[SF_X_IDX],2) + pow(other[SF_Y_IDX],2));
             double other_sn = other_s + other_v * prev_size * tint;
             int other_l = get_lane(other_d);
 
-            if ((other_l < 0 || other_l >= NUM_LANES) ||
-                ((other_s - car_s) <= -70.0)) {
-            } else {
+            // Other car is within the range of interest.
+            if ((other_l >= 0 && other_l < NUM_LANES) &&
+                ((other_s - car_s) > -REAR_CAR_REACTION_RANGE)) {
                 other[5] = other_sn;
                 preds.push_back({(double)other_id,other_sn, other_d, other_v});
             }
@@ -38,5 +38,4 @@ vector<vector<double>> Prediction::generate_prediction(Vehicle* ego, vector<vect
         preds = sensor_fusion;
     }
     return preds;
-
 }

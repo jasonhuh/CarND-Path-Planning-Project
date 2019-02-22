@@ -23,10 +23,11 @@ const int OCCUPIED_LANE     = 500;
 const int DANGER            = 1000;
 const int NEAR              = 10000;
 const int INEFFICIENCY      = 10000;
-const double MAX_COST       = 1000000; // 1M
+const double MAX_COST       = 1000000.0; // 1M
 
 const double DESIRED_BUFFER = 0.5;
 
+const double REAR_CAR_REACTION_RANGE = 70.0; // 70 meters
 const int TIME_DISTANCE = 200;
 const int PLANNING_HORIZON = 7;
 
@@ -35,5 +36,11 @@ const double CAR_WIDTH = 2.0;
 
 const int PLANNING_DISTANCE = 30;
 const int PLANNING_STEPS = 20;
+
+const int SF_ID_IDX = 0;
+const int SF_X_IDX = 3;
+const int SF_Y_IDX = 4;
+const int SF_S_IDX = 5;
+const int SF_D_IDX = 6;
 
 #endif // SETTINGS_H
