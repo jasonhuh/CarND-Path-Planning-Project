@@ -92,8 +92,63 @@ A really helpful resource for doing this project and creating smooth trajectorie
     git checkout e94b6e1
     ```
 
+# [Rubic Points](https://review.udacity.com/#!/rubrics/1971/view)
 
-# Note
+## Compilation
+
+### The code compiles correctly.
+
+The CMakeLists.txt has been extended to include new cpp files, and the code has been compiled 
+and has been tested from both Mac OS X (10.13.6) and Linux (Ubuntu 16.04).
+
+```cpp
+
+set(sources 
+    src/main.cpp
+    src/prediction.cpp
+    src/vehicle.cpp
+    src/trajectory.cpp
+    src/behavior.cpp
+    src/cost.cpp
+    src/util.cpp
+    src/helpers.cpp
+    )
+
+```
+
+## Valid trajectories
+
+### The car is able to drive at least 4.32 miles without incident.
+The car was able to drive for 30 minutes without incident.
+
+TBD - Screenshot 1
+
+
+TBD - Screenshot 2
+
+### The car drives according to the speed limit.
+No speed limit red message was seen.
+
+### Max Acceleration and Jerk are not Exceeded.
+Max jerk red message was not seen.
+
+### Car does not have collisions.
+No collisions have occurred for the duration of 30 minutes.
+
+### The car stays in its lane, except for the time between changing lanes.
+The car stayed in its lane except when it needed to change lanes.
+
+### The car is able to change lanes
+The car was able to change lanes by itself when a slower car was ahead of the car.
+
+
+### Reflection
+
+Please see the 'Model Documentation' section below.
+
+---
+
+# Model Documentation
 
 ## Snapshot of the Youtube video
 
@@ -148,6 +203,8 @@ leverage data drive approach or hybrid approach that leverages machine learning 
 ### Behavior planner
 
 The behavior planner is responsible for suggesting the states / maneuvers which are feasible, safe, legal and efficient. This module leverages a finite state machine and a set of cost functions to determine the next state to transition into.
+
+![Behavior Planning](/images/behavior_planning.png)
 
 [cf behavior.cpp](src/behavior.cpp)
 
@@ -217,7 +274,9 @@ double calculate_cost(Vehicle& vehicle,
 
 ### Trajectory generation
 
-Trajectory generation was inspired by the project walk through in the course. 
+Trajectory generation was inspired by the project walkthrough video in the course as well as the Python solution to the "Implement Behavior Planner in C++" quiz in the course.
+
+The spline library has been utilized for calculating y values as a function of x values. As provided in the walkthrough video, the last point of the vehicle and the point prior that was used were used as the initial two points. Three following points were also added to the spline. 
 
 [cf trajectory.cpp](src/trajectory.cpp)
 
@@ -228,41 +287,4 @@ The following units and conversions were used in this project. Most of the units
 - One meter per second is about 2.237 miles per hour.
 - Width of a car lane: 4 meters
 
-# [Rubic Points](https://review.udacity.com/#!/rubrics/1971/view)
-
-## Compilation
-
-### The code compiles correctly.
-
-The CMakeLists.txt has been extended to include new cpp files, and the code has been compiled 
-and has been tested from both Mac OS X (10.13.6) and Linux (Ubuntu 16.04).
-
-## Valid trajectories
-
-### The car is able to drive at least 4.32 miles without incident.
-The car was able to drive for 30 minutes without incident.
-
-### The car drives according to the speed limit.
-No speed limit red message was seen.
-
-### Max Acceleration and Jerk are not Exceeded.
-Max jerk red message was not seen.
-
-### Car does not have collisions.
-No collisions have occurred for the duration of 30 minutes.
-
-### The car stays in its lane, except for the time between changing lanes.
-The car stayed in its lane except when it needed to change lanes.
-
-### The car is able to change lanes
-The car was able to change lanes by itself when a slower car was ahead of the car.
-
-
-### Reflection
-
-Unit testing
-
-Testing is a time consuming process. C++ code is more prone to break when refactoring. Solid unit testing would be desired.
-
----
 
