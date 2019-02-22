@@ -28,7 +28,7 @@ const double MAX_COST       = 1000000; // 1M
 const double DESIRED_BUFFER = 0.5;
 
 const int TIME_DISTANCE = 200;
-const int PLANNING_HORIZON = 5;
+const int PLANNING_HORIZON = 7;
 
 const double CAR_LENGTH = 10.0;
 const double CAR_WIDTH = 2.0;

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include "cost.h"
@@ -128,9 +129,9 @@ vector<State> Behavior::get_available_states(Vehicle *ego) {
 string get_state_code(State state) {
     switch (state) {
         case KeepLane:
-            return "KL";
+            return "  KL";
         case CancelChange:
-            return "Cancel";
+            return "Cncl";
         case Initial:
             return "Init";
         case PrepareLaneChangeLeft:
@@ -138,15 +139,15 @@ string get_state_code(State state) {
         case PrepareLaneChangeRight:
             return "PLCR";
         case LaneChangeLeft:
-            return "LCL";
+            return " LCL";
         case LaneChangeRight:
-            return "LCR";
+            return " LCR";
         case Left:
             return "Left";
         case Right:
-            return "Right";
+            return "Rght";
         default:
-            return "Unknown";
+            return "Unkn";
     }
 }
 
@@ -195,12 +196,12 @@ void Behavior::update_state(Vehicle *ego, vector<vector<double>> predictions) {
     Behavior::VehicleState to;
 
     to = Behavior::get_next_state(ego, predictions, to, PLANNING_HORIZON);
-
+    std::cout << std::fixed << std::setprecision(2);
     std::cout<< CYAN << ego->step << RESET << " states:";
     for(int i = 0; i < to.state_list.size(); ++i) {
-        std::cout << " "<< get_color_code(to.state_list[i]) << get_state_code(to.state_list[i]) << RESET << " ";
+        std::cout << get_color_code(to.state_list[i]) << get_state_code(to.state_list[i]) << RESET;
     }
-    std::cout<<"| cost: " << get_color_code(to.cost) << to.cost << RESET << "" << std::endl;
+    std::cout << " | cost: " << get_color_code(to.cost) << to.cost << RESET << "" << std::endl;
 
     ego->state = to.state;
     ego->acc_list = to.acc_list;

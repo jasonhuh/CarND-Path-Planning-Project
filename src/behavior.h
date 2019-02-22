@@ -36,7 +36,7 @@ public:
 
     static void update_state(Vehicle *ego, vector<vector<double>> sensor_fusion);
 
-    static VehicleState get_next_state(Vehicle *ego, vector<vector<double>> predictions, VehicleState to, int horizon = 5);
+    static VehicleState get_next_state(Vehicle *ego, vector<vector<double>> predictions, VehicleState to, int horizon = 7);
 
     static void apply_state(Vehicle *ego, vector<vector<double>> predictions);
 
