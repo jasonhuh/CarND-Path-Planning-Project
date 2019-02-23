@@ -5,8 +5,7 @@ Self-Driving Car Engineer Nanodegree Program
 
 This is a screencast of the result for this project.
 
-[![link to my video result](https://img.youtube.com/vi/K9E-zTFW750g/0.jpg)](https://www.youtube.com/watch?v=K9E-zTFW750)
-
+[![link to my video result](https://img.youtube.com/vi/K9E-zTFW750/0.jpg)](https://www.youtube.com/watch?v=K9E-zTFW750)
 
 ---
 # Model Documentation
