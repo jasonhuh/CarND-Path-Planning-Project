@@ -366,7 +366,7 @@ void Behavior::apply_state(Vehicle *ego, vector<vector<double>> predictions) {
     ego->current_lane = get_lane(ego->d);
 }
 
-// combined to return acc, buffer_cost (lowest,time), near_cost (closest_approach)
+// combined to return acc, buffer_cost (lowest,time), safe_distance_cost (closest_approach)
 StepObject Behavior::acc_for_d(Vehicle *ego, vector<vector<double>> predictions) {
     StepObject so;
     double delta_v_til_target = ego->target_speed - ego->v;

@@ -36,7 +36,7 @@ double prepare_without_change_cost(bool plcl_lcl, bool plcr_lcr){
     return cost * PREPARE_WO_CHANGE;
 }
 
-double inefficiency_cost(double speed_sum, int step_count, double target_speed){
+double efficiency_cost(double speed_sum, int step_count, double target_speed){
     double avg_speed = speed_sum / (double)step_count;
     double diff = fabs(target_speed - avg_speed);
     double pct = diff / target_speed;
@@ -48,7 +48,7 @@ double inefficiency_cost(double speed_sum, int step_count, double target_speed){
     return cost + (pct * INEFFICIENCY);
 }
 
-double near_cost(vector<double> closest_approach_list) {
+double safe_distance_cost(vector<double> closest_approach_list) {
     double cost = 0.0;
     for (auto closest_approach : closest_approach_list) {
         if (closest_approach < CAR_LENGTH) {
@@ -59,7 +59,7 @@ double near_cost(vector<double> closest_approach_list) {
     return cost;
 }
 
-double occupied_cost(vector<double> lowest_time_front_list) {
+double occupied_lane_cost(vector<double> lowest_time_front_list) {
     // lowest_time_front should be calculated with target velocity, not current vehicle velocity
     double cost = 0.0;
     for (auto lowest_time_front : lowest_time_front_list) {
@@ -89,10 +89,10 @@ double change_lane_cost(int total_lane_changes){
     return COMFORT * total_lane_changes;
 }
 
-double at_lane_cost(vector<Vehicle> trajectory){
+double at_lane_cost(vector<Vehicle> projection){
     double cost = 0.0;
     double center = double(NUM_LANES - 1) / 2.0;
-    for (auto vehicle : trajectory) {
+    for (auto vehicle : projection) {
         double dif_center = abs((double)vehicle.current_lane - center);
         cost += dif_center * CENTER;
     }
@@ -103,9 +103,9 @@ double at_lane_cost(vector<Vehicle> trajectory){
 double calculate_cost(Vehicle& vehicle,
                       Behavior::VehicleState to){
     double cost = 0.0;
-    cost += inefficiency_cost(to.v_sum, to.step_count, vehicle.target_speed);
-    cost += near_cost(to.closest_approach_list);
-    cost += occupied_cost(to.lowest_time_front_list);
+    cost += efficiency_cost(to.v_sum, to.step_count, vehicle.target_speed);
+    cost += safe_distance_cost(to.closest_approach_list);
+    cost += occupied_lane_cost(to.lowest_time_front_list);
     cost += buffer_cost(to.lowest_time_list);
     cost += change_lane_cost(to.total_lane_changes);
     cost += at_lane_cost(to.projection);

@@ -29,7 +29,7 @@ const double DESIRED_BUFFER = 0.5;
 
 const double REAR_CAR_REACTION_RANGE = 70.0; // 70 meters
 const int TIME_DISTANCE = 200;
-const int PLANNING_HORIZON = 7;
+const int PLANNING_HORIZON = 5;
 
 const double CAR_LENGTH = 10.0;
 const double CAR_WIDTH = 2.0;
